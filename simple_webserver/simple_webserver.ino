@@ -26,7 +26,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-ESP8266WebServer server;
+WebServer server;
 uint8_t pin_led = 16;
 char* ssid = "YOUR_SSID";
 char* password = "YOUR_PASSWORD";
