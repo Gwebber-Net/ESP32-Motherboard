@@ -4,8 +4,8 @@
 
 WebServer server;
 uint8_t pin_led = 16;
-char* ssid = "YOUR_SSID";
-char* password = "YOUR_PASSWORD";
+char* ssid = "H220RK";
+char* password = "jfmamjjasond";
 
 // debug Variables
 byte debug = 1;
@@ -81,9 +81,10 @@ void setup()
 
 
   
-  
-  WiFi.begin(ssid,password);
   Serial.begin(115200);
+  Serial.println("Connecting");
+  WiFi.begin(ssid,password);
+  
   while(WiFi.status()!=WL_CONNECTED)
   {
     Serial.print(".");
