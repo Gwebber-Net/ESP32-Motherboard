@@ -3,7 +3,7 @@
 #include <WebServer.h>
 
 WebServer server;
-uint8_t pin_led = 16;
+
 char* ssid = "H220RK";
 char* password = "jfmamjjasond";
 
@@ -49,6 +49,7 @@ double referenceVoltage;
 // Module Settings
 byte settingbTime;
 byte settingbThreshold;
+
 int settingcutoffVoltage;
 // Module Settings
 
@@ -95,6 +96,7 @@ void setup()
   Serial.println(WiFi.localIP());
 
   server.on("/",[](){server.send(200,"text/plain","Hello World!");});
+  server.on("/voltage",SendVoltage);
   
   server.begin();
 
