@@ -7,6 +7,40 @@ WebServer server;
 char* ssid = "H220RK";
 char* password = "jfmamjjasond";
 
+char webpage[] PROGMEM = R"=====(
+
+<html>
+<head>
+</head>
+<body>
+<p> LED Status: <span id="voltage">__</span> </p>
+<button onclick="myFunction()"> TOGGLE </button>
+</body>
+<script>
+function myFunction()
+{
+  console.log("button was clicked!");
+  var xhr = new XMLHttpRequest();
+  xhr.overrideMimeType("application/json");
+  var url = "/voltage";
+  //xhr.onreadystatechange = function() {
+  xhr.onload = function() {
+    if (this.status == 200) // this.readyState == 4 &&
+    {
+      //document.getElementById("voltage").innerHTML = this.responseText;
+      var obj = JSON.parse(this.responseText);
+      document.getElementById("voltage").innerHTML = obj.voltage;
+    }
+  };
+  xhr.open("GET", url, true);
+  xhr.send();
+};
+//document.addEventListener('DOMContentLoaded', myFunction, false);
+</script>
+</html>
+)=====";
+
+
 // debug Variables
 byte debug = 1;
 // debug Variables
@@ -95,7 +129,7 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/",[](){server.send(200,"text/plain","Hello World!");});
+  server.on("/",[](){server.send_P(200,"text/html", webpage);});
   server.on("/voltage",SendVoltage);
   
   server.begin();
