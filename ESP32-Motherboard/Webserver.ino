@@ -4,8 +4,6 @@
 
 void SendVoltage()
 {
-
-
 const size_t CAPACITY = JSON_OBJECT_SIZE(1);
 StaticJsonDocument<CAPACITY> doc;
 

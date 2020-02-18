@@ -19,23 +19,18 @@ char webpage[] PROGMEM = R"=====(
 <script>
 function myFunction()
 {
-  console.log("button was clicked!");
   var xhr = new XMLHttpRequest();
-  xhr.overrideMimeType("application/json");
-  var url = "/voltage";
-  //xhr.onreadystatechange = function() {
   xhr.onload = function() {
     if (this.status == 200) // this.readyState == 4 &&
     {
-      //document.getElementById("voltage").innerHTML = this.responseText;
       var obj = JSON.parse(this.responseText);
       document.getElementById("voltage").innerHTML = obj.voltage;
     }
   };
-  xhr.open("GET", url, true);
+  xhr.open("GET", "/voltage");
   xhr.send();
 };
-//document.addEventListener('DOMContentLoaded', myFunction, false);
+document.addEventListener('DOMContentLoaded', myFunction, false);
 </script>
 </html>
 )=====";
