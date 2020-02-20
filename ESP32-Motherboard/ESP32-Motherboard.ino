@@ -98,18 +98,7 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/",[](){
-    Serial.println("Service: /index.html");
-    server.send_P(200, "text/html", webpage);}
-  );
-  server.on("/js/nrg.js",[](){
-    Serial.println("Service: /js/nrg.js");
-    server.send_P(200, "application/x-javascript", www_js_nrg);}
-  );
-  server.on("/voltage", SendVoltage);
-  server.on("/settings", ReceiveSettings);
-  
-  server.begin();
+  InitialiseServer();
 }
 
 void loop()
