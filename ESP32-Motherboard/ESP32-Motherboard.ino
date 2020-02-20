@@ -9,7 +9,7 @@ char* password = "jfmamjjasond";
 
 extern char webpage[];
 extern char www_js_nrg[];
-
+extern void InitialiseServer();
 // debug Variables
 byte debug = 1;
 // debug Variables

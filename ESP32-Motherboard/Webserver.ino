@@ -1,7 +1,7 @@
 #include <ArduinoJson.h>
 
 char webpage[] PROGMEM = R"=====(
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
 <script type="text/javascript" src="/js/nrg.js"></script>
@@ -93,20 +93,35 @@ function PostSettings()
 };
 )=====";
 
-void InitialiseServer()
+void ReceiveSettings()
 {
-  server.on("/",[](){
-    Serial.println("Service: /index.html");
-    server.send_P(200, "text/html", webpage);}
-  );
-  server.on("/js/nrg.js",[](){
-    Serial.println("Service: /js/nrg.js");
-    server.send_P(200, "application/x-javascript", www_js_nrg);}
-  );
-  server.on("/voltage", SendVoltage);
-  server.on("/settings", ReceiveSettings);
+
   
-  server.begin();
+  
+  String input = server.arg("plain");
+
+  int count = input.length();
+  String cut = input.substring(1,count-1);
+  Serial.println(cut);
+
+  
+  cut.replace("\\","");
+  Serial.println(cut);
+
+StaticJsonDocument<200> doc;
+DeserializationError err = deserializeJson(doc, cut);
+if (err) 
+{
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(err.c_str());
+}
+else
+{
+  String s = doc["setting"];
+  Serial.println(s);
+}
+
+  
 }
 
 void SendVoltage()
@@ -124,31 +139,18 @@ serializeJson(doc, output);
 server.send(200,"application/json",output);
 }
 
-void ReceiveSettings()
+void InitialiseServer()
 {
-
+  server.on("/",[](){
+    Serial.println("Service: /index.html");
+    server.send_P(200, "text/html", webpage);}
+  );
+  server.on("/js/nrg.js",[](){
+    Serial.println("Service: /js/nrg.js");
+    server.send_P(200, "application/x-javascript", www_js_nrg);}
+  );
+  server.on("/voltage", SendVoltage);
+  server.on("/settings", ReceiveSettings);
   
-  
-  String input = server.arg("plain");
-  Serial.println(input);
-  DynamicJsonDocument doc(1024);
-
-  // You can use a String as your JSON input.
-  // WARNING: the string in the input  will be duplicated in the JsonDocument.
-//  String input =
-//      "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
-  deserializeJson(doc, input);
-  JsonObject obj = doc.as<JsonObject>();
-
-  
-
-  // Lastly, you can print the resulting JSON to a String
-  String output;
-  serializeJson(doc, output);
-  Serial.begin(115200);
-  Serial.println(output);
-
-  String test = "test";
-  Serial.println(test);
-  
+  server.begin();
 }
