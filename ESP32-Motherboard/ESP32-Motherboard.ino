@@ -7,34 +7,8 @@ WebServer server;
 char* ssid = "H220RK";
 char* password = "jfmamjjasond";
 
-char webpage[] PROGMEM = R"=====(
-
-<html>
-<head>
-</head>
-<body>
-<p> LED Status: <span id="voltage">__</span> </p>
-<button onclick="myFunction()"> TOGGLE </button>
-</body>
-<script>
-function myFunction()
-{
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function() {
-    if (this.status == 200) // this.readyState == 4 &&
-    {
-      var obj = JSON.parse(this.responseText);
-      document.getElementById("voltage").innerHTML = obj.voltage;
-    }
-  };
-  xhr.open("GET", "/voltage");
-  xhr.send();
-};
-document.addEventListener('DOMContentLoaded', myFunction, false);
-</script>
-</html>
-)=====";
-
+extern char webpage[];
+extern char www_js_nrg[];
 
 // debug Variables
 byte debug = 1;
@@ -113,7 +87,7 @@ void setup()
   
   Serial.begin(115200);
   Serial.println("Connecting");
-  WiFi.begin(ssid,password);
+  WiFi.begin(ssid, password);
   
   while(WiFi.status()!=WL_CONNECTED)
   {
@@ -124,18 +98,28 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  server.on("/",[](){server.send_P(200,"text/html", webpage);});
-  server.on("/voltage",SendVoltage);
+  server.on("/",[](){
+    Serial.println("Service: /index.html");
+    server.send_P(200, "text/html", webpage);}
+  );
+  server.on("/js/nrg.js",[](){
+    Serial.println("Service: /js/nrg.js");
+    server.send_P(200, "application/x-javascript", www_js_nrg);}
+  );
+  server.on("/voltage", SendVoltage);
+  server.on("/settings", ReceiveSettings);
   
   server.begin();
-
-
-
-  
 }
 
 void loop()
-{
+{ 
+  while(WiFi.status()!=WL_CONNECTED)
+  {
+    WiFi.begin(ssid,password);
+    delay(500);
+  }
+  
   server.handleClient();
 
   if(Serial1.available()) // Is there a new Byte?
@@ -144,9 +128,9 @@ void loop()
     
   }
   ///////////////////////////
-//  Module Count routine
-//
-///////////////////////////
+  //  Module Count routine
+  //
+  ///////////////////////////
   if(moduleGetCount)
   {
     if(moduleGetCountOverflow > 1000)
