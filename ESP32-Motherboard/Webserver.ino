@@ -88,7 +88,7 @@ function PostSettings()
             console.log(result.status);
             console.log(result.responseText);            
         },
-        JSON.stringify({setting: "btime"})
+        JSON.stringify({"setting": "btime"})
     );
 };
 )=====";
@@ -127,8 +127,28 @@ server.send(200,"application/json",output);
 void ReceiveSettings()
 {
 
-  DynamicJsonDocument doc(1024);
   
-  String data = server.arg("plain");
-  Serial.println(data);
+  
+  String input = server.arg("plain");
+  Serial.println(input);
+  DynamicJsonDocument doc(1024);
+
+  // You can use a String as your JSON input.
+  // WARNING: the string in the input  will be duplicated in the JsonDocument.
+//  String input =
+//      "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
+  deserializeJson(doc, input);
+  JsonObject obj = doc.as<JsonObject>();
+
+  
+
+  // Lastly, you can print the resulting JSON to a String
+  String output;
+  serializeJson(doc, output);
+  Serial.begin(115200);
+  Serial.println(output);
+
+  String test = "test";
+  Serial.println(test);
+  
 }
