@@ -12,8 +12,9 @@ int Rx_Count = 0;
 int Rx_Point = 0;
 char state = 0;
 
-float moduleStore[10][8]; // 10 Modules maximum, and 8 voltages per module
-
+float moduleVoltages[10][8]; // 10 Modules maximum, and 8 voltages per module
+byte  moduleCellToDump[10];
+byte  moduleCellToReceive[10];
 void Check_String()
 {
   byte Slave_Address = Rx_Buffer[0];
@@ -56,7 +57,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
           cell = cell | (high << 8);
           float Cell = cell;
           Cell = Cell / 100;
-          moduleStore[Slave_Address][i] = Cell;
+          moduleVoltages[Slave_Address][i] = Cell;
         }
 
         cellCount = 0;
@@ -64,7 +65,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
         {
           for(int j = 0; j < 8; j++)
           {
-            if(moduleStore[i,j]) // If there is a voltage.
+            if(moduleVoltages[i,j]) // If there is a voltage.
             {
               cellCount++;
             }
@@ -74,6 +75,9 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
             }
           }
         } 
+        moduleCellToDump[Slave_Address] = Rx_Buffer[12];
+        moduleCellToReceive[Slave_Address] = Rx_Buffer[13];
+        
 
         // Balance Current will be in this next part. 
         // No code for this has been written at the other end yet.

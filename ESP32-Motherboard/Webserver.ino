@@ -130,44 +130,42 @@ server.send(200,"application/json",output);
 void SendPackInfo()
 {
   
-//  for(int i = 0; i < 8; i++)
-//  {
-//    moduleStore[0][i] = (float)4.2;
-//  }
-//  cellCount = 7;
+  for(int i = 0; i < 8; i++)
+  {
+    moduleVoltages[0][i] = (float)4.2;
+  }
+  cellCount = 9;
   StaticJsonDocument<1024> doc;
   JsonArray array = doc.to<JsonArray>(); // Convert the document to an array.
   
   for(int i = 0; i < cellCount; i++)
   {
     JsonObject arr = array.createNestedObject(); // Create a Nested Object
-    arr["cell"] = i + 1;
+    arr["cell"] = i;
     byte module = 0;
-    if(i > 7 && i < 16)
+    for(int j = 0; j < 10; j++)
     {
-      module = 1;
+      if(i > (7 +(i*8)) && i < (8 + (i * 8)))
+      {
+        module = i;
+        return;
+      }
     }
-    if(i > 15 && i < 24)
-    {
-      module = 2;
-    }
-    if(i > 23 && i < 32)
-    {
-      module = 3;
-    }
-    arr["voltage"] = moduleStore[module][i - (module * 8)];
+    arr["voltage"] = moduleVoltages[module][i - (module * 8)];
 
-    arr["bstate"] = "none"; 
+
+
+
     
-//    if(i == 1)
+//    arr["bstate"] = "none";
+//    if(moduleCellToDump[module] = i - (module * 8) ) // Cellnumber inside the array is zero based. but 
 //    {
-//      arr["bstate"] = "charging"; 
+//      arr["bstate"] = "dumping";
 //    }
-//    if(i == 7)
+//    if(moduleCellToReceive[module] = i - (module * 8))
 //    {
-//      arr["bstate"] = "discharging"; 
-//    }
-    
+//      arr["bstate"] = "receiving";
+//    }   
   }
 
   String output;
