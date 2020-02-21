@@ -157,15 +157,15 @@ void SendPackInfo()
 
 
     
-//    arr["bstate"] = "none";
-//    if(moduleCellToDump[module] = i - (module * 8) ) // Cellnumber inside the array is zero based. but 
-//    {
-//      arr["bstate"] = "dumping";
-//    }
-//    if(moduleCellToReceive[module] = i - (module * 8))
-//    {
-//      arr["bstate"] = "receiving";
-//    }   
+    arr["bstate"] = "none";
+    if(moduleCellToDump[module] = i - (module * 8) ) // Cellnumber inside the array is zero based. but 
+    {
+      arr["bstate"] = "dumping";
+    }
+    if(moduleCellToReceive[module] = i - (module * 8))
+    {
+      arr["bstate"] = "receiving";
+    }   
   }
 
   String output;
