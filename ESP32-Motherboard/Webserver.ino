@@ -88,40 +88,28 @@ function PostSettings()
             console.log(result.status);
             console.log(result.responseText);            
         },
-        JSON.stringify({"setting": "btime"})
+        {setting: "btime"}
     );
 };
 )=====";
 
 void ReceiveSettings()
 {
-
-  
-  
   String input = server.arg("plain");
-
-  int count = input.length();
-  String cut = input.substring(1,count-1);
-  Serial.println(cut);
-
+  Serial.println(input);
   
-  cut.replace("\\","");
-  Serial.println(cut);
-
-StaticJsonDocument<200> doc;
-DeserializationError err = deserializeJson(doc, cut);
-if (err) 
-{
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(err.c_str());
-}
-else
-{
-  String s = doc["setting"];
-  Serial.println(s);
-}
-
-  
+  StaticJsonDocument<200> doc;
+  DeserializationError err = deserializeJson(doc, input);
+  if (err) 
+  {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(err.c_str());
+  }
+  else
+  {
+    String s = doc["setting"];
+    Serial.println(s);
+  }  
 }
 
 void SendVoltage()
@@ -130,13 +118,63 @@ const size_t CAPACITY = JSON_OBJECT_SIZE(1);
 StaticJsonDocument<CAPACITY> doc;
 
 // create an object
-JsonObject object = doc.to<JsonObject>();
-object["voltage"] = 4.2;
-
+//JsonObject object = doc.to<JsonObject>();
+//object["voltage"] = 4.2;
+doc["voltage"] = 4.2;
 // serialize the object and send the result to Serial
 String output;
 serializeJson(doc, output);
 server.send(200,"application/json",output);
+}
+
+void SendPackInfo()
+{
+  
+//  for(int i = 0; i < 8; i++)
+//  {
+//    moduleStore[0][i] = (float)4.2;
+//  }
+//  cellCount = 7;
+  StaticJsonDocument<1024> doc;
+  JsonArray array = doc.to<JsonArray>(); // Convert the document to an array.
+  
+  for(int i = 0; i < cellCount; i++)
+  {
+    JsonObject arr = array.createNestedObject(); // Create a Nested Object
+    arr["cell"] = i + 1;
+    byte module = 0;
+    if(i > 7 && i < 16)
+    {
+      module = 1;
+    }
+    if(i > 15 && i < 24)
+    {
+      module = 2;
+    }
+    if(i > 23 && i < 32)
+    {
+      module = 3;
+    }
+    arr["voltage"] = moduleStore[module][i - (module * 8)];
+
+    arr["bstate"] = "none"; 
+    
+//    if(i == 1)
+//    {
+//      arr["bstate"] = "charging"; 
+//    }
+//    if(i == 7)
+//    {
+//      arr["bstate"] = "discharging"; 
+//    }
+    
+  }
+
+  String output;
+  serializeJson(doc, output);
+  server.send(200,"application/json",output);
+
+  
 }
 
 void InitialiseServer()
@@ -151,6 +189,7 @@ void InitialiseServer()
   );
   server.on("/voltage", SendVoltage);
   server.on("/settings", ReceiveSettings);
+  server.on("/api/packinfo", SendPackInfo);
   
   server.begin();
 }

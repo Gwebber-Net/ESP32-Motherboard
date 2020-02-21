@@ -59,6 +59,22 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
           moduleStore[Slave_Address][i] = Cell;
         }
 
+        cellCount = 0;
+        for(int i = 0; i < 10; i++)
+        {
+          for(int j = 0; j < 8; j++)
+          {
+            if(moduleStore[i,j]) // If there is a voltage.
+            {
+              cellCount++;
+            }
+            else
+            {
+              return;
+            }
+          }
+        } 
+
         // Balance Current will be in this next part. 
         // No code for this has been written at the other end yet.
 

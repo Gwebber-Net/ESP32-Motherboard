@@ -57,7 +57,7 @@ int settingcutoffVoltage;
 // Module Settings
 
 
-
+int cellCount = 0;
 
 
 
