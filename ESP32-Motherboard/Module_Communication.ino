@@ -15,6 +15,57 @@ char state = 0;
 float moduleVoltages[10][8]; // 10 Modules maximum, and 8 voltages per module
 byte  moduleCellToDump[10];
 byte  moduleCellToReceive[10];
+
+////////////////////////////
+////////////////////////////
+void Put_Data(byte data) // Functie die je bytes in op eenvolgende index doet
+ {
+   Tx_Buffer[Tx_Put_Point] = data;
+   Tx_Put_Point++;
+   
+   if (data == DLE)
+   {
+     Tx_Buffer[Tx_Put_Point] = DLE;
+     Tx_Put_Point++;
+   }// if data == dle endd
+ }// void put_data endd
+
+ //////////////////////////////////////////////////////////////////////////////
+
+ void Put_Header(byte Address,byte Cmd)
+
+ {
+   Tx_Buffer[0] = DLE;
+   Tx_Buffer[1] = STX;
+   Tx_Buffer[2] = Address;
+   Tx_Put_Point = 3;
+   Put_Data(Cmd);
+ }// void put_header endd
+
+ ////////////////////////////////////////////////////////////////////////////
+
+ void Put_Teal()
+ {
+   Tx_Buffer[Tx_Put_Point] = DLE;
+   Tx_Put_Point = Tx_Put_Point + 1;
+   Tx_Buffer[Tx_Put_Point] = ETX;
+   Tx_Put_Point = Tx_Put_Point + 1;
+ } // void put_teal endd
+
+
+ /////////////////////////////////////////////////////////////////////////////
+
+ void Senddata()
+ {
+   int i;
+   for(i = 0; i < Tx_Put_Point; i++) // for loop die je index laat oplopen
+   {
+     Serial1.write(Tx_Buffer[i]); // je hele array serieel versturen
+   }
+   Tx_Put_Point = 0;
+ } // void senddata endd
+
+
 void Check_String()
 {
   byte Slave_Address = Rx_Buffer[0];
@@ -97,54 +148,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
 }
 
 
-////////////////////////////
-////////////////////////////
-void Put_Data(byte data) // Functie die je bytes in op eenvolgende index doet
- {
-   Tx_Buffer[Tx_Put_Point] = data;
-   Tx_Put_Point++;
-   
-   if (data == DLE)
-   {
-     Tx_Buffer[Tx_Put_Point] = DLE;
-     Tx_Put_Point++;
-   }// if data == dle endd
- }// void put_data endd
 
- //////////////////////////////////////////////////////////////////////////////
-
- void Put_Header(byte Address,byte Cmd)
-
- {
-   Tx_Buffer[0] = DLE;
-   Tx_Buffer[1] = STX;
-   Tx_Buffer[2] = Address;
-   Tx_Put_Point = 3;
-   Put_Data(Cmd);
- }// void put_header endd
-
- ////////////////////////////////////////////////////////////////////////////
-
- void Put_Teal()
- {
-   Tx_Buffer[Tx_Put_Point] = DLE;
-   Tx_Put_Point = Tx_Put_Point + 1;
-   Tx_Buffer[Tx_Put_Point] = ETX;
-   Tx_Put_Point = Tx_Put_Point + 1;
- } // void put_teal endd
-
-
- /////////////////////////////////////////////////////////////////////////////
-
- void Senddata()
- {
-   int i;
-   for(i = 0; i < Tx_Put_Point; i++) // for loop die je index laat oplopen
-   {
-     Serial1.write(Tx_Buffer[i]); // je hele array serieel versturen
-   }
-   Tx_Put_Point = 0;
- } // void senddata endd
 
  /////////////////////////////////////////////////////////////////////////////
 

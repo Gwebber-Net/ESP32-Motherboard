@@ -59,7 +59,10 @@ int settingcutoffVoltage;
 
 int cellCount = 0;
 
-
+extern void Put_Header(byte Address,byte Cmd);
+extern void Put_Data(byte data);
+extern void Put_Teal();
+extern void Senddata();
 
 void setup()
 {
