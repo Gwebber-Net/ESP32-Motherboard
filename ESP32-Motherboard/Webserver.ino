@@ -114,8 +114,8 @@ void ReceiveSettings()
 
 void SendVoltage()
 {
-const size_t CAPACITY = JSON_OBJECT_SIZE(1);
-StaticJsonDocument<CAPACITY> doc;
+
+StaticJsonDocument<100> doc;
 
 // create an object
 //JsonObject object = doc.to<JsonObject>();
@@ -135,6 +135,22 @@ void SendPackInfo()
   
 }
 
+void SendSummary()
+{
+  byte lowestcell = GetLowestCell();
+  byte highestcell = GetHighestCell();
+  float voltage = (float)24.1;
+  float current = (float)3.33;
+  StaticJsonDocument<100> doc;
+  doc["voltage"] = voltage;
+  doc["current"] = current;
+  doc["lowestcell"] = lowestcell;
+  doc["highestcell"] = highestcell;
+  String output;
+  serializeJson(doc, output);
+  server.send(200,"application/json",output);
+}
+
 void InitialiseServer()
 {
   server.on("/",[](){
@@ -148,6 +164,7 @@ void InitialiseServer()
   server.on("/voltage", SendVoltage);
   server.on("/settings", ReceiveSettings);
   server.on("/api/packinfo", SendPackInfo);
+  server.on("/api/summary", SendSummary);
   
   server.begin();
 }

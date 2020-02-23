@@ -274,3 +274,74 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
   serializeJson(doc, output);
   return output;
  }
+
+ byte GetLowestCell()
+ {
+  float voltage = moduleVoltages[0][0];
+  byte cell = 0;
+  byte counter = 1;
+  for(int l = 0; l < 10; l++)
+    {
+      for(int k = 1; k < 8; k++)
+      {
+        Serial.print("counter = ");
+        Serial.println(counter);
+        Serial.print("voltage = ");
+        Serial.println(moduleVoltages[l][k]);
+        Serial.print("old voltage = ");
+        Serial.println(voltage);
+        if(moduleVoltages[l][k] < voltage)
+        {
+          cell = counter;
+          voltage = moduleVoltages[l][k];
+        }
+          counter++;
+          if(counter == cellCount)
+          {
+            break;
+          }
+      }
+      if(counter == cellCount)
+      {
+        break;
+      }
+    }
+
+    return cell;
+    
+ }
+
+ byte GetHighestCell()
+ {
+    float voltage = moduleVoltages[0][0];
+  byte cell = 0;
+  byte counter = 1;
+  for(int l = 0; l < 10; l++)
+    {
+      for(int k = 1; k < 8; k++)
+      {
+        Serial.print("counter = ");
+        Serial.println(counter);
+        Serial.print("voltage = ");
+        Serial.println(moduleVoltages[l][k]);
+        Serial.print("old voltage = ");
+        Serial.println(voltage);
+        if(moduleVoltages[l][k] > voltage)
+        {
+          cell = counter;
+          voltage = moduleVoltages[l][k];
+        }
+          counter++;
+          if(counter == cellCount)
+          {
+            break;
+          }
+      }
+      if(counter == cellCount)
+      {
+        break;
+      }
+    }
+
+    return cell;
+ }
