@@ -221,8 +221,8 @@ if(moduleGetDataOverflow > 200)
       //Put_Data(Balancing_Rate);
       Put_Data(settingbTime);
       Put_Data(settingbThreshold);
-      Put_Data(settingcutoffVoltage & 255);
-      Put_Data((settingcutoffVoltage >> 8) & 255); 
+      //Put_Data(settingcutoffVoltage & 255);
+      //Put_Data((settingcutoffVoltage >> 8) & 255); 
       Put_Teal();
       Senddata();
 

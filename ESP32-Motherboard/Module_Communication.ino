@@ -338,3 +338,59 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
   serializeJson(doc, output);
   return output;
  }
+
+ String Settings()
+ {
+// settingbTime;
+// settingbThreshold;
+// settingOverVoltage; // Voltage at wich the battery pack gets disconnected from the charger.
+// settingUnderVoltage; // Voltage at wich the battery will stop discharging.
+  StaticJsonDocument<2000> doc;
+  JsonArray array = doc.to<JsonArray>(); // Convert the document to an array.
+
+
+  JsonObject nested1 = array.createNestedObject(); // Create a Nested Object
+  nested1["setting"] = "btime";
+  nested1["type"] = "int";
+  nested1["value"] = 5;
+  nested1["max"] = 255;
+  nested1["min"] = 1;
+  nested1["defaultvalue"] = 5;
+  nested1["description"] = "Time that the flying cell will be switched across a cell in the pack.";
+  nested1["label"] = "balance time";
+
+  JsonObject nested2 = array.createNestedObject(); // Create a Nested Object
+  nested2["setting"] = "bthreshold";
+  nested2["type"] = "int";
+  nested2["value"] = 30;
+  nested2["max"] = 1;
+  nested2["min"] = 42;
+  nested2["defaultvalue"] = 30;
+  nested2["description"] = "Voltage at wich the balancer will start to balance. 30 = 3.0Volt, 42 = 4.2Volt.";
+  nested2["label"] = "balance threshold";
+
+  JsonObject nested3 = array.createNestedObject(); // Create a Nested Object
+  nested3["setting"] = "ov";
+  nested3["type"] = "int";
+  nested3["value"] = 42;
+  nested3["max"] = 42;
+  nested3["min"] = 1;
+  nested3["defaultvalue"] = 42;
+  nested3["description"] = "Voltage at wich the charger will be cut off from the battery pack 30 = 3.0Volt, 42 = 4.2Volt.";
+  nested3["label"] = "overvoltage protection";
+
+  JsonObject nested4 = array.createNestedObject(); // Create a Nested Object
+  nested4["setting"] = "uv";
+  nested4["type"] = "int";
+  nested4["value"] = 30;
+  nested4["max"] = 42;
+  nested4["min"] = 1;
+  nested4["defaultvalue"] = 30;
+  nested4["description"] = "Voltage at wich the load will be cut off from the battery pack 30 = 3.0Volt, 42 = 4.2Volt.";
+  nested4["label"] = "undervoltage protection";
+  
+  String output;
+  serializeJson(doc,output);
+  return output;
+  
+ }

@@ -143,8 +143,10 @@ void SendSummary()
 
 void SendConfig()
 {
-  
+  String settings = Settings();
+  server.send(200,"application/json",settings);
 }
+
 
 void InitialiseServer()
 {
