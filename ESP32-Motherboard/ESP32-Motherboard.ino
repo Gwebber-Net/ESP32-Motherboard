@@ -53,7 +53,9 @@ double referenceVoltage;
 byte settingbTime;
 byte settingbThreshold;
 
-int settingcutoffVoltage;
+byte settingOverVoltage; // Voltage at wich the battery pack gets disconnected from the charger.
+byte settingUnderVoltage; // Voltage at wich the battery will stop discharging.
+// Note that there will be 2 relays. 1 for Charging, 1 for Discharging.
 // Module Settings
 
 

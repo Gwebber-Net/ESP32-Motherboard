@@ -221,30 +221,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
  String PackInfo()
  {
     
-  moduleVoltages[0][0] = (float)3.0;
-  moduleVoltages[0][1] = (float)3.1;
-  moduleVoltages[0][2] = (float)3.2;
-  moduleVoltages[0][3] = (float)3.3;
-  moduleVoltages[0][4] = (float)3.4;
-  moduleVoltages[0][5] = (float)3.5;
-  moduleVoltages[0][6] = (float)3.6;
-  moduleVoltages[0][7] = (float)3.7;
-  moduleVoltages[1][1] = (float)3.8;
-  moduleVoltages[1][2] = (float)3.9;
-  moduleVoltages[1][3] = (float)3.9;
-  moduleVoltages[1][4] = (float)3.8;
-  moduleVoltages[1][5] = (float)3.7;
-  moduleVoltages[1][6] = (float)3.6;
-  moduleVoltages[1][7] = (float)3.5;
-  moduleVoltages[2][1] = (float)3.4;
-  moduleVoltages[2][2] = (float)3.3;
-  moduleVoltages[2][3] = (float)3.2;
-  moduleVoltages[2][4] = (float)3.1;
-  moduleVoltages[2][5] = (float)3.0;
-  moduleVoltages[2][6] = (float)2.9;
-  moduleVoltages[2][7] = (float)2.8;
-  moduleVoltages[3][1] = (float)2.7;
-  cellCount = 23;
+
   StaticJsonDocument<2000> doc;
   JsonArray array = doc.to<JsonArray>(); // Convert the document to an array.
   
@@ -344,4 +321,20 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
     }
 
     return cell;
+ }
+
+ String Summary()
+ {
+    byte lowestcell = GetLowestCell();
+  byte highestcell = GetHighestCell();
+  float voltage = (float)24.1;
+  float current = (float)3.33;
+  StaticJsonDocument<100> doc;
+  doc["voltage"] = voltage;
+  doc["current"] = current;
+  doc["lowestcell"] = lowestcell;
+  doc["highestcell"] = highestcell;
+  String output;
+  serializeJson(doc, output);
+  return output;
  }
