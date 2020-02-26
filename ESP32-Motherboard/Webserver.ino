@@ -191,4 +191,13 @@ void InitialiseServer()
   moduleVoltages[2][7] = (float)2.8;
   moduleVoltages[3][1] = (float)2.7;
   cellCount = 23;
+
+  moduleCellToDump[0] = 0;
+  moduleCellToDump[1] = 0;
+  moduleCellToDump[2] = 0;
+  moduleCellToReceive[0] = 1;
+  moduleCellToReceive[1] = 1;
+  moduleCellToReceive[2] = 1;
+
+  
 }

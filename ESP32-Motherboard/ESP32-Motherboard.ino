@@ -103,7 +103,20 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
+//    for(int i = 0; i < 25; i++)
+//  {
+//    byte module = cellToModule(i);
+//    Serial.print("Cell:");
+//    Serial.print(i);
+//    Serial.print(" @ module: ");
+//    Serial.println(module);
+//    
+//  }
+
+  
   InitialiseServer();
+
+  
 }
 
 void loop()

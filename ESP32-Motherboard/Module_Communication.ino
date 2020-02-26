@@ -217,6 +217,37 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
    }//switch endd
 
  }
+byte cellToModule(byte cellNumber)
+{
+  byte module = 0;
+  for(int i = 1; i < 9; i++)
+  {
+    if(cellNumber > (7 +((i-1) * 8)) && cellNumber < (16 + ((i-1) * 8)))
+    {
+     module = i; 
+     break;
+    }
+  }
+  return module;
+}
+
+String cellToBalanceState(byte cellNumber)
+{
+  byte module = cellToModule(cellNumber);
+  String balanceState = "none";
+  if(moduleCellToDump[module] == (cellNumber - (module * 8)))
+  {
+    balanceState = "dumping";
+  }
+  if(moduleCellToReceive[module] == (cellNumber  - (module * 8)))
+  {
+    balanceState = "receiving";
+  }
+
+  return balanceState;
+}
+
+
 
  String PackInfo()
  {
@@ -228,7 +259,8 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
     JsonObject arr; arr = array.createNestedObject(); // Create a Nested Object  
     arr["cell"] = 0;
     arr["voltage"] = moduleVoltages[0][0];
-    byte counter = 1;;
+    arr["bstate"] = cellToBalanceState(0);
+    byte counter = 1;
     for(int l = 0; l < 10; l++)
     {
       for(int k = 1; k < 8; k++)
@@ -236,6 +268,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
         JsonObject arr = array.createNestedObject(); // Create a Nested Object  
         arr["cell"] = counter;
         arr["voltage"] = moduleVoltages[l][k];
+        arr["bstate"] = cellToBalanceState(counter);
         counter++;
         if(counter == cellCount)
         {
@@ -290,7 +323,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
 
  byte GetHighestCell()
  {
-    float voltage = moduleVoltages[0][0];
+  float voltage = moduleVoltages[0][0];
   byte cell = 0;
   byte counter = 1;
   for(int l = 0; l < 10; l++)
@@ -325,7 +358,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
 
  String Summary()
  {
-    byte lowestcell = GetLowestCell();
+  byte lowestcell = GetLowestCell();
   byte highestcell = GetHighestCell();
   float voltage = (float)24.1;
   float current = (float)3.33;
