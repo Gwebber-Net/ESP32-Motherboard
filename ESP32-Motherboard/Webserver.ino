@@ -495,7 +495,7 @@ function get_pack_info() {
     $.ajax({
         method: 'GET',
         contentType: 'application/json',
-        url: url_path+'api/pack_info',
+        url: url_path+'api/packinfo',
         data: JSON.stringify({'request': 'pack_info'}),
         dataType: 'json',
         success: function(pack_data) {
