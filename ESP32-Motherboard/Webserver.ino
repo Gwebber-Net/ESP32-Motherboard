@@ -53,8 +53,6 @@ bstate_bidirectional.src ='assets/images/bstate_both.png';
 
 var data
 var pack_level_canvas = null;
-var pack_history_canvas = null;
-var pack_history_last_ts = null;
 Chart.defaults.global.elements.line.fill = false;
 
 var last_status = { status:'Offline', message:'starting up', code: 200 };;
@@ -62,7 +60,6 @@ var connection = { status:'Offline', message:'starting up', code: 200 };
 
 var int_summary = null;
 var int_pack_info = null;
-var int_pack_history = null;
 
 var settings = null;
 var auth_uuid = null;
@@ -89,18 +86,15 @@ function main_interval() {
     if ( connection.status != last_status.status ) {
         clearInterval(int_summary);
         clearInterval(int_pack_info);
-        clearInterval(int_pack_history);
         if ( connection.status == 'Online' ) {
 
             get_summary();
             get_pack_info();
             console.log('Offline to Online recovery');
-            //load_pack_history();
 
             // Go online
             int_summary = setInterval(function(){ get_summary() }, global_interval);
-            int_pack_info = setInterval(function(){ get_pack_info() }, global_interval);
-            //int_pack_history = setInterval(function(){ update_pack_history(pack_history_last_ts) }, global_interval);
+            int_pack_info = setInterval(function(){ get_pack_info() }, global_interval);            
         }
     } else if ( connection.status == 'Offline' ) {
         console.log('main_interval: Attempting reconnect');
@@ -108,7 +102,6 @@ function main_interval() {
             get_summary();
             get_pack_info();
             console.log('main_interval: Offline recovery');
-            //load_pack_history();
         });
     }
     last_status = connection;
@@ -300,9 +293,7 @@ function setup_pack_info(size=0){
     labels = []
     for (i = 0; i < size; i++) {
         labels.push('pack'+(i+1));
-    }
-    // var ctx_info = null;
-    // var ctx_history = null;
+    }    
 
     //'pack1', 'pack2', 'pack3', 'pack4', 'pack5', 'pack6']
     if ( ! pack_level_canvas ) {
