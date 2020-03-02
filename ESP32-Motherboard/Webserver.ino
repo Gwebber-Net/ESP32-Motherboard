@@ -736,40 +736,6 @@ body {
 }
 )=====";
 
-void ReceiveSettings()
-{
-  String input = server.arg("plain");
-  Serial.println(input);
-  
-  StaticJsonDocument<200> doc;
-  DeserializationError err = deserializeJson(doc, input);
-  if (err) 
-  {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(err.c_str());
-  }
-  else
-  {
-    String s = doc["setting"];
-    Serial.println(s);
-  }  
-}
-
-void SendVoltage()
-{
-
-StaticJsonDocument<100> doc;
-
-// create an object
-//JsonObject object = doc.to<JsonObject>();
-//object["voltage"] = 4.2;
-doc["voltage"] = 4.2;
-// serialize the object and send the result to Serial
-String output;
-serializeJson(doc, output);
-server.send(200,"application/json",output);
-}
-
 void SendPackInfo()
 {
   String output = PackInfo();
@@ -795,18 +761,16 @@ void InitialiseServer()
 {
  server.on("/",[](){
         Serial.println("Service: /index.html");
-        server.send_P(200, "text/html", webpage);}
+        server.send(200, "text/html", webpage);}
     );
     server.on("/js/nrg.js",[](){
         Serial.println("Service: /js/nrg.js");
-        server.send_P(200, "application/x-javascript", www_js_nrg);}
+        server.send(200, "application/x-javascript", www_js_nrg);}
     );
     server.on("/css/nrg.css",[](){
         Serial.println("Service: /css/nrg.css");
-        server.send_P(200, "text/css", www_css);
+        server.send(200, "text/css", www_css);
     });  
-  server.on("/voltage", SendVoltage);
-  server.on("/settings", ReceiveSettings);
   server.on("/api/packinfo", SendPackInfo);
   server.on("/api/summary", SendSummary);
 
@@ -837,7 +801,7 @@ void InitialiseServer()
   moduleVoltages[2][6] = (float)2.9;
   moduleVoltages[2][7] = (float)2.8;
   moduleVoltages[3][1] = (float)2.7;
-  cellCount = 23;
+  cellCount = 12;
 
   moduleCellToDump[0] = 0;
   moduleCellToDump[1] = 0;

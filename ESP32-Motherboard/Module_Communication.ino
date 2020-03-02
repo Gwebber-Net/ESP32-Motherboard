@@ -17,6 +17,7 @@ float moduleVoltages[10][8]; // 10 Modules maximum, and 8 voltages per module
 byte  moduleCellToDump[10];
 byte  moduleCellToReceive[10];
 
+
 ////////////////////////////
 ////////////////////////////
 void Put_Data(byte data) // Functie die je bytes in op eenvolgende index doet
@@ -294,12 +295,16 @@ String cellToBalanceState(byte cellNumber)
     {
       for(int k = 1; k < 8; k++)
       {
-        Serial.print("counter = ");
-        Serial.println(counter);
-        Serial.print("voltage = ");
-        Serial.println(moduleVoltages[l][k]);
-        Serial.print("old voltage = ");
-        Serial.println(voltage);
+        if(debugBart)
+        {
+          Serial.print("counter = ");
+          Serial.println(counter);
+          Serial.print("voltage = ");
+          Serial.println(moduleVoltages[l][k]);
+          Serial.print("old voltage = ");
+          Serial.println(voltage);
+        }
+        
         if(moduleVoltages[l][k] < voltage)
         {
           cell = counter;
@@ -330,12 +335,15 @@ String cellToBalanceState(byte cellNumber)
     {
       for(int k = 1; k < 8; k++)
       {
-        Serial.print("counter = ");
-        Serial.println(counter);
-        Serial.print("voltage = ");
-        Serial.println(moduleVoltages[l][k]);
-        Serial.print("old voltage = ");
-        Serial.println(voltage);
+        if(debugBart)
+        {
+          Serial.print("counter = ");
+          Serial.println(counter);
+          Serial.print("voltage = ");
+          Serial.println(moduleVoltages[l][k]);
+          Serial.print("old voltage = ");
+          Serial.println(voltage);
+        }
         if(moduleVoltages[l][k] > voltage)
         {
           cell = counter;

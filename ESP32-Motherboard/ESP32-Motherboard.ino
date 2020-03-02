@@ -11,7 +11,8 @@ extern char webpage[];
 extern char www_js_nrg[];
 extern void InitialiseServer();
 // debug Variables
-byte debug = 1;
+byte debugBart = 0;
+byte debugPhizicks = 0;
 // debug Variables
 
 
@@ -89,7 +90,7 @@ void setup()
   Senddata();
 
 
-  
+  //Serial1.begin(9600,SERIAL_8N1, 4, 2); 
   Serial.begin(115200);
   Serial.println("Connecting");
   WiFi.begin(ssid, password);
@@ -124,6 +125,7 @@ void loop()
   while(WiFi.status()!=WL_CONNECTED)
   {
     WiFi.begin(ssid,password);
+    Serial.println("reconnecting");
     delay(500);
   }
   
