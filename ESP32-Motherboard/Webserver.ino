@@ -92,17 +92,19 @@ function main_interval() {
             get_pack_info();
             console.log('Offline to Online recovery');
 
-            // Go online
             int_summary = setInterval(function(){ get_summary() }, global_interval);
             int_pack_info = setInterval(function(){ get_pack_info() }, global_interval);            
         }
     } else if ( connection.status == 'Offline' ) {
-        console.log('main_interval: Attempting reconnect');
+        console.log('main_interval: Attempting connection');
         get_config(function(){
             get_summary();
             get_pack_info();
             console.log('main_interval: Offline recovery');
         });
+    } else {
+        // We are Online, update stats
+        get_summary();
     }
     last_status = connection;
 }
