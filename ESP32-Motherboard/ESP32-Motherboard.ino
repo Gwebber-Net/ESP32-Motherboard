@@ -4,12 +4,13 @@
 
 WebServer server;
 
-char* ssid = "EIT_LAN";
-char* password = "RQrh-ULD3iUVSO";
 
-extern char webpage[];
-extern char www_js_nrg[];
+
+char* ssid = "H220RK";
+char* password = "jfmamjjasond";
+
 extern void InitialiseServer();
+extern void ReadBuffer();
 // debug Variables
 byte debug = 1;
 // debug Variables
@@ -87,9 +88,6 @@ void setup()
   Put_Data(0);
   Put_Teal();
   Senddata();
-
-
-  
   Serial.begin(115200);
   Serial.println("Connecting");
   WiFi.begin(ssid, password);
@@ -103,6 +101,8 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
+
+  
   InitialiseServer();
 }
 
@@ -111,6 +111,9 @@ void loop()
   while(WiFi.status()!=WL_CONNECTED)
   {
     WiFi.begin(ssid,password);
+
+    Serial.println("reconnecting");
+
     delay(500);
   }
   
@@ -194,10 +197,6 @@ if(moduleGetDataOverflow > 200)
     }
   }
 }
-      
-      
-      
-
 ///////////////////////////
 // End Module Get Data routine.
 //
@@ -246,7 +245,4 @@ if(moduleGetDataOverflow > 200)
 // End Module Write Settings routine.
 //
 ///////////////////////////
-  
-  
-  
 }

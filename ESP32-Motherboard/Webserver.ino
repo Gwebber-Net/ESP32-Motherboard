@@ -734,95 +734,14 @@ body {
 }
 )=====";
 
-void ReceiveSettings()
-{
-    String input = server.arg("plain");
-    Serial.println(input);
-
-    StaticJsonDocument<200> doc;
-    DeserializationError err = deserializeJson(doc, input);
-    if (err) 
-    {
-        Serial.print(F("deserializeJson() failed: "));
-        Serial.println(err.c_str());
-    }
-    else
-    {
-        String s = doc["setting"];
-        Serial.println(s);
-    }  
-}
-
-void SendPackInfo()
-{
-  
-  moduleVoltages[0][0] = (float)3.0;
-  moduleVoltages[0][1] = (float)3.1;
-  moduleVoltages[0][2] = (float)3.2;
-  moduleVoltages[0][3] = (float)3.3;
-  moduleVoltages[0][4] = (float)3.4;
-  moduleVoltages[0][5] = (float)3.5;
-  moduleVoltages[0][6] = (float)3.6;
-  moduleVoltages[0][7] = (float)3.7;
-  moduleVoltages[1][1] = (float)3.8;
-  moduleVoltages[1][2] = (float)3.9;
-  moduleVoltages[1][3] = (float)3.9;
-  moduleVoltages[1][4] = (float)3.8;
-  moduleVoltages[1][5] = (float)3.7;
-  moduleVoltages[1][6] = (float)3.6;
-  moduleVoltages[1][7] = (float)3.5;
-  moduleVoltages[2][1] = (float)3.4;
-  moduleVoltages[2][2] = (float)3.3;
-  moduleVoltages[2][3] = (float)3.2;
-  moduleVoltages[2][4] = (float)3.1;
-  moduleVoltages[2][5] = (float)3.0;
-  moduleVoltages[2][6] = (float)2.9;
-  moduleVoltages[2][7] = (float)2.8;
-  moduleVoltages[3][1] = (float)2.7;
-  cellCount = 23;
-  StaticJsonDocument<2000> doc;
-  JsonArray array = doc.to<JsonArray>(); // Convert the document to an array.
-  
-    JsonObject arr; arr = array.createNestedObject(); // Create a Nested Object  
-    arr["cell"] = 0;
-    arr["voltage"] = moduleVoltages[0][0];
-    byte counter = 1;;
-    for(int l = 0; l < 10; l++)
-    {
-      for(int k = 1; k < 8; k++)
-      {
-        JsonObject arr = array.createNestedObject(); // Create a Nested Object  
-        arr["cell"] = counter;
-        arr["voltage"] = moduleVoltages[l][k];
-        counter++;
-        if(counter == cellCount)
-        {
-          break;
-        }
-      }
-      if(counter == cellCount)
-      {
-        break;
-      }
-    }
-    
-  for(int i = 0; i < cellCount; i++)
-  {
-    
-
-  }
-
-  String output;
-  serializeJson(doc, output);
-  server.send(200,"application/json",output); 
-}
 
 
-// void SendPackInfo()
-// {
-//     String output = PackInfo();
-//     server.send(200,"application/json",output);  
-// }
+
+ void SendPackInfo()
+ {
+     String output = PackInfo();
+      server.send(200,"application/json",output);  
+ }
 
 void SendSummary()
 {
@@ -854,9 +773,6 @@ void InitialiseServer()
         Serial.println("Service: /css/nrg.css");
         server.send_P(200, "text/css", www_css);
     });  
-    //server.on("/voltage", server.send(200,"application/json", SendVoltage()));
-    //server.on("/voltage", SendVoltage);
-    server.on("/settings", ReceiveSettings);
     server.on("/api/pack_info", SendPackInfo);
     server.on("/api/config", SendConfig);
     server.on("/api/summary", [](){

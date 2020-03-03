@@ -17,6 +17,7 @@ float moduleVoltages[10][8]; // 10 Modules maximum, and 8 voltages per module
 byte  moduleCellToDump[10];
 byte  moduleCellToReceive[10];
 
+
 ////////////////////////////
 ////////////////////////////
 void Put_Data(byte data) // Functie die je bytes in op eenvolgende index doet
@@ -218,17 +219,79 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
 
  }
 
+
+byte cellToModule(byte cellNumber)
+{
+  byte module = 0;
+  for(int i = 1; i < 9; i++)
+  {
+    if(cellNumber > (7 +((i-1) * 8)) && cellNumber < (16 + ((i-1) * 8)))
+    {
+     module = i; 
+     break;
+    }
+  }
+  return module;
+}
+
+String cellToBalanceState(byte cellNumber)
+{
+  byte module = cellToModule(cellNumber);
+  String balanceState = "none";
+  if(moduleCellToDump[module] == (cellNumber - (module * 8)))
+  {
+    balanceState = "dumping";
+  }
+  if(moduleCellToReceive[module] == (cellNumber  - (module * 8)))
+  {
+    balanceState = "receiving";
+  }
+
+  return balanceState;
+}
+
+
+
  String PackInfo()
  {
-    
 
+
+// Random generatar for the voltages and balance states
+  randomSeed(analogRead(0));
+
+  int rnd = random(0,20);
+  moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
+  for(int l = 0; l < 10; l++)
+    {
+      for(int k = 1; k < 8; k++)
+      {
+          int rnd = random(0,20);
+          moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
+      }
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+      moduleCellToDump[l] = 0;
+          int rnd = random(0,7);
+          moduleCellToDump[l] = rnd;
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+          moduleCellToReceive[l] = 0;
+          int rnd = random(0,7);
+          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
+          
+    }
   StaticJsonDocument<2000> doc;
   JsonArray array = doc.to<JsonArray>(); // Convert the document to an array.
   
     JsonObject arr; arr = array.createNestedObject(); // Create a Nested Object  
     arr["cell"] = 0;
     arr["voltage"] = moduleVoltages[0][0];
-    byte counter = 1;;
+    arr["bstate"] = cellToBalanceState(0);
+    byte counter = 1;
     for(int l = 0; l < 10; l++)
     {
       for(int k = 1; k < 8; k++)
@@ -236,6 +299,7 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
         JsonObject arr = array.createNestedObject(); // Create a Nested Object  
         arr["cell"] = counter;
         arr["voltage"] = moduleVoltages[l][k];
+        arr["bstate"] = cellToBalanceState(counter);
         counter++;
         if(counter == cellCount)
         {
@@ -261,12 +325,6 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
     {
       for(int k = 1; k < 8; k++)
       {
-        Serial.print("counter = ");
-        Serial.println(counter);
-        Serial.print("voltage = ");
-        Serial.println(moduleVoltages[l][k]);
-        Serial.print("old voltage = ");
-        Serial.println(voltage);
         if(moduleVoltages[l][k] < voltage)
         {
           cell = counter;
@@ -290,19 +348,16 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
 
  byte GetHighestCell()
  {
+
     float voltage = moduleVoltages[0][0];
+
   byte cell = 0;
   byte counter = 1;
   for(int l = 0; l < 10; l++)
     {
       for(int k = 1; k < 8; k++)
       {
-        Serial.print("counter = ");
-        Serial.println(counter);
-        Serial.print("voltage = ");
-        Serial.println(moduleVoltages[l][k]);
-        Serial.print("old voltage = ");
-        Serial.println(voltage);
+
         if(moduleVoltages[l][k] > voltage)
         {
           cell = counter;
@@ -325,7 +380,8 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
 
  String Summary()
  {
-    byte lowestcell = GetLowestCell();
+
+  byte lowestcell = GetLowestCell();
   byte highestcell = GetHighestCell();
   float voltage = (float)24.1;
   float current = (float)3.33;
@@ -393,4 +449,5 @@ if(Slave_Cmd == 0 && Slave_Sub_Cmd == 3)
   serializeJson(doc,output);
   return output;
   
+
  }
