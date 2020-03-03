@@ -1,1 +1,2 @@
-
+char* ssid = "";
+char* password = "";

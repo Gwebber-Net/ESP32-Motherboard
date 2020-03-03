@@ -301,7 +301,7 @@ function get_summary() {
 function setup_pack_info(size=0){
     labels = []
     for (i = 0; i < size; i++) {
-        labels.push('pack'+(i+1));
+        labels.push('pack'+(i));
     }
     // var ctx_info = null;
     // var ctx_history = null;
@@ -494,7 +494,7 @@ function get_pack_info() {
     $.ajax({
         method: 'GET',
         contentType: 'application/json',
-        url: url_path+'api/pack_info',
+        url: url_path+'api/packinfo',
         data: JSON.stringify({'request': 'pack_info'}),
         dataType: 'json',
         success: function(pack_data) {
@@ -773,7 +773,10 @@ void InitialiseServer()
         Serial.println("Service: /css/nrg.css");
         server.send_P(200, "text/css", www_css);
     });  
-    server.on("/api/pack_info", SendPackInfo);
+    server.on("/api/packinfo", [](){
+        Serial.println("Service: /api/packinfo");
+        SendPackInfo();
+    });
     server.on("/api/config", SendConfig);
     server.on("/api/summary", [](){
         Serial.println("Service: /api/summary");
@@ -782,4 +785,37 @@ void InitialiseServer()
 
     //server.onNotFound(handleNotFound);
     server.begin();
+
+    cellCount = 23;
+
+    // Random generatar for the voltages and balance states
+  randomSeed(analogRead(0));
+
+  int rnd = random(0,20);
+  moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
+  for(int l = 0; l < 10; l++)
+    {
+      for(int k = 1; k < 8; k++)
+      {
+          int rnd = random(0,20);
+          moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
+      }
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+      moduleCellToDump[l] = 0;
+          int rnd = random(0,7);
+          moduleCellToDump[l] = rnd;
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+          moduleCellToReceive[l] = 0;
+          int rnd = random(0,7);
+          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
+          
+    }
+
+    
 }

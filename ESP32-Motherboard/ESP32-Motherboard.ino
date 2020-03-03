@@ -6,8 +6,8 @@ WebServer server;
 
 
 
-char* ssid = "H220RK";
-char* password = "jfmamjjasond";
+extern char* ssid;
+extern char* password;
 
 extern void InitialiseServer();
 extern void ReadBuffer();
