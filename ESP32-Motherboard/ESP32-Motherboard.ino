@@ -2,8 +2,10 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-WebServer server;
 
+#include "ESPAsyncWebServer.h"
+//WebServer server;
+AsyncWebServer server(80);
 
 
 extern char* ssid;
@@ -117,7 +119,7 @@ void loop()
     delay(500);
   }
   
-  server.handleClient();
+  //server.handleClient();
 
   if(Serial1.available()) // Is there a new Byte?
   {

@@ -475,56 +475,87 @@ body {
 
 
 
- void SendPackInfo()
- {
-     String output = PackInfo();
-      server.send(200,"application/json",output);  
- }
-
-void SendSummary()
-{
-    String summary = Summary();
-    server.send(200,"application/json",summary);
-}
-
-void SendConfig()
-{
-    String settings = Settings();
-    Serial.println(settings);
-    server.send(200,"application/json",settings);
-}
-
-void handleNotFound(){
-    server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
-}
+// void SendPackInfo()
+// {
+//     String output = PackInfo();
+//      server.send(200,"application/json",output);  
+// }
+//
+//void SendSummary()
+//{
+//    String summary = Summary();
+//    server.send(200,"application/json",summary);
+//}
+//
+//void SendConfig()
+//{
+//    String settings = Settings();
+//    Serial.println(settings);
+//    server.send(200,"application/json",settings);
+//}
+//
+//void handleNotFound(){
+//    server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+//}
 
 void InitialiseServer()
 {
-    server.on("/",[](){
-        Serial.println("Service: /index.html");
-        server.send_P(200, "text/html", webpage);}
-    );
-    server.on("/js/nrg.js",[](){
-        Serial.println("Service: /js/nrg.js");
-        server.send_P(200, "application/x-javascript", www_js_nrg);}
-    );
-    server.on("/css/nrg.css",[](){
-        Serial.println("Service: /css/nrg.css");
-        server.send_P(200, "text/css", www_css);
-    });  
-    server.on("/api/packinfo", [](){
-        Serial.println("Service: /api/packinfo");
-        SendPackInfo();
-    });
-    server.on("/api/config", SendConfig);
-    server.on("/api/summary", [](){
-        Serial.println("Service: /api/summary");
-        SendSummary();
-    });
+//    server.on("/",[](){
+//        Serial.println("Service: /index.html");
+//        server.send_P(200, "text/html", webpage);}
+//    );
+//    server.on("/js/nrg.js",[](){
+//        Serial.println("Service: /js/nrg.js");
+//        server.send_P(200, "application/x-javascript", www_js_nrg);}
+//    );
+//    server.on("/css/nrg.css",[](){
+//        Serial.println("Service: /css/nrg.css");
+//        server.send_P(200, "text/css", www_css);
+//    });  
+//    server.on("/api/packinfo", [](){
+//        Serial.println("Service: /api/packinfo");
+//        SendPackInfo();
+//    });
+//    server.on("/api/config", SendConfig);
+//    server.on("/api/summary", [](){
+//        Serial.println("Service: /api/summary");
+//        SendSummary();
+//    });
+//
+//    server.onNotFound(handleNotFound);
 
-    server.onNotFound(handleNotFound);
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(200, "text/html", webpage);
+  });
+    server.on("/js/nrg.js", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(200, "application/x-javascript", www_js_nrg);
+  });
+    server.on("/css/nrg.css", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(200, "text/css", www_css);
+  }); 
+  
+  server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request){  
+    String settings = Settings();
+    //Serial.println(settings);
+    request->send(200, "application/json", settings);
+  });     
+
+  server.on("/api/summary", HTTP_GET, [](AsyncWebServerRequest *request){  
+    String summary = Summary();
+    //Serial.println(settings);
+    request->send(200, "application/json", summary);
+  }); 
+
+  server.on("/api/packinfo", HTTP_GET, [](AsyncWebServerRequest *request){  
+    String packinfo = PackInfo();
+    //Serial.println(settings);
+    request->send(200, "application/json", packinfo);
+  }); 
+     
     server.begin();
 
+    cellCount = 7;
+    
     // Random generatar for the voltages and balance states
     randomSeed(analogRead(0));
 

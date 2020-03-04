@@ -256,34 +256,7 @@ String cellToBalanceState(byte cellNumber)
  {
 
 
-// Random generatar for the voltages and balance states
-  randomSeed(analogRead(0));
 
-  int rnd = random(0,20);
-  moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
-  for(int l = 0; l < 10; l++)
-    {
-      for(int k = 1; k < 8; k++)
-      {
-          int rnd = random(0,20);
-          moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
-      }
-    }
-
-    for(int l = 0; l < 10; l++)
-    {
-      moduleCellToDump[l] = 0;
-          int rnd = random(0,7);
-          moduleCellToDump[l] = rnd;
-    }
-
-    for(int l = 0; l < 10; l++)
-    {
-          moduleCellToReceive[l] = 0;
-          int rnd = random(0,7);
-          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
-          
-    }
   StaticJsonDocument<2000> doc;
   JsonArray array = doc.to<JsonArray>(); // Convert the document to an array.
   
@@ -381,6 +354,38 @@ String cellToBalanceState(byte cellNumber)
  String Summary()
  {
 
+  // Random generatar for the voltages and balance states
+  randomSeed(analogRead(0));
+
+  int rnd = random(0,20);
+  moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
+  for(int l = 0; l < 10; l++)
+    {
+      for(int k = 1; k < 8; k++)
+      {
+          int rnd = random(0,20);
+          moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
+      }
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+      moduleCellToDump[l] = 0;
+          int rnd = random(0,7);
+          moduleCellToDump[l] = rnd;
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+          moduleCellToReceive[l] = 0;
+          int rnd = random(0,7);
+          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
+          
+    }
+
+    // Random Generator
+
+  
   byte lowestcell = GetLowestCell();
   byte highestcell = GetHighestCell();
   float voltage = (float)24.1;
