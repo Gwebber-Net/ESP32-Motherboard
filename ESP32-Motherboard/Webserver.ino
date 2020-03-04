@@ -141,7 +141,6 @@ function get_config(success) {
         method: 'GET',
         contentType: 'application/json',
         url: url_path+'api/config',
-        data: JSON.stringify({'request': 'config'}),
         dataType: 'json',
         success: function(configuration) {
             box = $('.card-body.settings');
@@ -223,7 +222,7 @@ function save_config() {
         method: 'POST',
         contentType: 'application/json',
         url: window.location.pathname+'api/config_save',
-        data: JSON.stringify({'request': conf_post}),
+        data: JSON.stringify(conf_post),
         dataType: 'json',
         headers: {
             'Authorization-Token': auth_uuid,
@@ -279,7 +278,6 @@ function get_summary() {
         method: 'GET',
         contentType: 'application/json',
         url: url_path+'api/summary',
-        data: JSON.stringify({'request': 'summary'}),
         dataType: 'json',
         success: function(pack_data) {
             update_main_summary(pack_data)
@@ -352,44 +350,6 @@ function setup_pack_info(size=0){
     }
 }
 
-function setup_pack_history_info(size=0) {
-    var labels = []
-    for (i = 0; i < size; i++) {
-        labels.push((i+1));
-    }
-    // No history canvas
-    if ( ctx_history.length == 0 ) {
-        return;
-    }
-    //labels = ['one','two','three']
-    //'pack1', 'pack2', 'pack3', 'pack4', 'pack5', 'pack6']
-    if ( ! pack_history_canvas ) {
-        pack_history_canvas = new Chart(ctx_history, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: []
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        },
-                        stacked: false
-                    }],
-                    xAxes: [
-                        { stacked: false }
-                    ]
-                }
-            }
-        });
-    } else {
-        pack_history_canvas.labels = labels;
-        pack_history_canvas.update();
-    }
-}
-
 function update_pack_info(pack_data) {
     var pack_values = [];
     var pack_bstates = [];
@@ -447,55 +407,11 @@ function update_pack_info(pack_data) {
     pack_level_canvas.update();
 }
 
-function load_history_canvas(pack_data) {
-    // Store current timestamp used for updating canvas
-    if ( typeof(pack_data.timestamp) == 'undefined') {
-        console.log('FUCK, no TS');
-    } else {
-        pack_history_last_ts = pack_data.timestamp;
-    }
-
-    pack_history_canvas.data.labels = pack_data.labels;
-    pack_history_canvas.data.datasets = pack_data.datasets;
-    pack_history_canvas.update();
-}
-
-function update_history_canvas(pack_data) {
-    // Store current timestamp used for updating canvas
-    if ( typeof(pack_data.timestamp) == 'undefined') {
-        console.log('FUCK, no TS');
-    } else {
-        if ( pack_data.timestamp > 0 ) {
-            pack_history_last_ts = pack_data.timestamp;
-        }
-    }
-    console.log('TODO update_history_canvas');
-
-    for (i = 0; i < pack_data.labels.length; i++) {
-        pack_history_canvas.data.labels.push(pack_data.labels[i]);
-    }
-    pack_history_canvas.data.labels.splice(0, 1);
-    pack_history_canvas.data.datasets.forEach(function(dataset, index) {
-        if ( typeof pack_data.datasets !== 'undefined' && typeof pack_data.datasets[index] !== 'undefined' ) {
-            if ( typeof pack_data.datasets[index].data !== 'undefined' ) {
-                for (i = 0; i < pack_data.datasets[index].data.length; i++) {
-                    pack_history_canvas.data.datasets[index].data.push(pack_data.datasets[index].data[i]);
-                }
-            } else {
-                pack_history_canvas.data.datasets[index].data.push(null);
-            }
-            pack_history_canvas.data.datasets[index].data.splice(0, 1);
-        }
-    });
-    pack_history_canvas.update();
-}
-
 function get_pack_info() {
     $.ajax({
         method: 'GET',
         contentType: 'application/json',
         url: url_path+'api/packinfo',
-        data: JSON.stringify({'request': 'pack_info'}),
         dataType: 'json',
         success: function(pack_data) {
             update_pack_info(pack_data)
@@ -514,64 +430,11 @@ function get_pack_info() {
     });
 }
 
-function load_pack_history() {
-    $.ajax({
-        method: 'GET',
-        contentType: 'application/json',
-        url: url_path+'api/load_pack_history',
-        data: JSON.stringify({'request': 'load_pack_history'}),
-        dataType: 'json',
-        success: function(pack_data) {
-            // Load canvas
-            load_history_canvas(pack_data)
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-            console.log( thrownError+' '+ xhr.statusText);
-            connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
-        },
-        fail: function(jqXHR, textStatus, errorThrown) {
-            console.log( thrownError+' '+ xhr.statusText );
-            connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
-        },
-        done: function() {
-            console.log('done')
-        }
-    });
-}
-
-function update_pack_history(start_timestamp) {
-    console.log('update_pack_history TS:'+start_timestamp)
-    $.ajax({
-        method: 'GET',
-        contentType: 'application/json',
-        url: url_path+'api/update_pack_history',
-        data: JSON.stringify({'request': 'update_pack_history', 'ts': start_timestamp}),
-        dataType: 'json',
-        success: function(pack_data) {
-            // Update canvas
-            update_history_canvas(pack_data)
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-            console.log( thrownError+' '+ xhr.statusText);
-            connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
-        },
-        fail: function(jqXHR, textStatus, errorThrown) {
-            console.log( thrownError+' '+ xhr.statusText );
-            connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
-        },
-        done: function() {
-            console.log('done')
-        }
-    });
-}
-
 $(document).ready(function(){
     ctx_info = $('#pack_level');
-    ctx_history = $('#pack_history');
 
     // Configure charts
     setup_pack_info();
-    setup_pack_history_info();
 
     // click close alerts
     $('body').on('click', '.alert', function(){
@@ -580,146 +443,21 @@ $(document).ready(function(){
         });
     });
 
-    $('.btn.btn-primary.logout').on('click', function() {
-        auth_uuid = null
-        $('.dropdown-menu').find('.btn.btn-primary.login').show();
-        $('.dropdown-menu').find('.btn.btn-primary.logout').hide();
-        $('#validationUsername').val('');
-        $('#validationPassword').val('');
-        $('.widget-heading.auth_name').text('Guest');
-    });
-
     get_summary();
     get_pack_info();
-    // First Load history
-    //load_pack_history();
 
-    $('.bg-midnight-bloom').on('click', function(item){
-        notify_alert('danger', 'this won\'t work mate, give it up');
-    });
-
-    var forms = $('.needs-validation.settings');
-    // Loop over them and prevent submission
-    var validation = Array.prototype.filter.call(forms, function(form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            var is_valid = true;
-            if (form.checkValidity() === false) {
-                is_valid = false;
-            }
-            form.classList.add('was-validated');
-            if ( is_valid ) {
-                save_config();
-            }
-        }, false);
-    });
-
-    var forms = $('.needs-validation.login');
-    // Loop over them and prevent submission
-    var validation = Array.prototype.filter.call(forms, function(form) {
-        form.addEventListener('submit', function(event) {
-
-            event.preventDefault();
-            event.stopPropagation();
-            if (form.checkValidity() === true) {
-                var username = $('#validationUsername').val();
-                var password = $('#validationPassword').val();
-                $.ajax({
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username+':'+password));
-                    },
-                    method: 'POST',
-                    contentType: 'application/json',
-                    url: url_path+'api/authenticate',
-                    success: function(auth_response) {
-                        auth_uuid = auth_response;
-                        $('.widget-heading.auth_name').text('Admin');
-                        $('#modal_authenticate').find('.alert.alert-success').fadeIn('slow', function () {
-                            $(this).delay(1000).fadeOut('slow', function() {
-                                $('#modal_authenticate').find('.btn.btn-secondary').click();
-                                $('.dropdown-menu').find('.btn.btn-primary.login').hide();
-                                $('.dropdown-menu').find('.btn.btn-primary.logout').show();
-                            });
-                        });
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        if ( xhr.status >= 500 ) {
-                            notify_alert('danger', 'Offline: Check service is running', 'status_offline');
-
-                            connection = {status: 'Offline', message: 'Check system is up and on the network', code: xhr.status};
-
-                            $('.modal-dialog .alert.alert-danger').fadeIn('slow', function () {
-                                $(this).delay(5000).fadeOut('slow');
-                            });
-                        } else if ( xhr.status >= 401 ) {
-                            $('.modal-dialog .alert.alert-danger').text('Authentication Failed');
-                            $('.modal-dialog .alert.alert-danger').fadeIn('slow', function () {
-                                $(this).delay(5000).fadeOut('slow');
-                            });
-                        }
-                    },
-                    fail: function(jqXHR, textStatus, errorThrown) {
-                        notify_alert('danger', 'Offline: Check service is running', 'status_offline');
-                        console.log( xhr.status+ ' : '+thrownError+' '+ xhr.statusText );
-
-                        connection = {status:'Offline', message: 'Check system is up and on the network', code: xhr.status};
-
-                        $('.alert.alert-failed').fadeIn('slow', function () {
-                            $(this).delay(5000).fadeOut('slow');
-                        });
-                    },
-                    done: function() {
-                        console.log('done')
-                    }
-                });
-                form.classList.add('was-validated');
-
-            }
-        }, false);
-    });
-
-    $('.btn.set-default').on('click', function() {
-        $.each(settings, function(key, value){
-            console.log(key, value);
-
-            item = $('#'+value.setting);
-
-            $(item).val(value.defaultvalue);
-        });
-        $('#box_settings').find('.btn.btn-primary').attr('disabled', false);
-    });
-
-    $('.nav-item.tabs').on('click', function(item) {
-        $(this).siblings().each(function(k, v){
-            $(v).find('a').removeClass('active');
-        });
-        $(this).find('a').addClass('active');
-
-        if ( item.target.text == 'History' ) {
-            $('#tab_pack_level').hide();
-            $('#tab_pack_history').show();
-        } else {
-            $('#tab_pack_level').show();
-            $('#tab_pack_history').hide();
-        }
-    });
 });
 )=====";
 
 char www_css[] PROGMEM = R"=====(
 @import url(//db.onlinewebfonts.com/c/233131eb5b5e4a930cbdfb07008a09e1?family=LCD);
 body {
-    background-color: #909090;
+    background-color: #101050;
 }
 #menu {
     margin: 10px;
     padding: 10px;
-    border: 5px solid #858585;
+    border: 5px solid #202080;
     font-family: "Verdana", Times, serif;
 }
 .summary {
@@ -752,6 +490,7 @@ void SendSummary()
 void SendConfig()
 {
     String settings = Settings();
+    Serial.println(settings);
     server.send(200,"application/json",settings);
 }
 
@@ -783,39 +522,35 @@ void InitialiseServer()
         SendSummary();
     });
 
-    //server.onNotFound(handleNotFound);
+    server.onNotFound(handleNotFound);
     server.begin();
 
-    cellCount = 23;
-
     // Random generatar for the voltages and balance states
-  randomSeed(analogRead(0));
+    randomSeed(analogRead(0));
 
-  int rnd = random(0,20);
-  moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
-  for(int l = 0; l < 10; l++)
+    int rnd = random(0,20);
+    moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
+    for(int l = 0; l < 10; l++)
     {
-      for(int k = 1; k < 8; k++)
-      {
-          int rnd = random(0,20);
-          moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
-      }
+        for(int k = 1; k < 8; k++)
+        {
+            int rnd = random(0,20);
+            moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
+        }
     }
 
     for(int l = 0; l < 10; l++)
     {
-      moduleCellToDump[l] = 0;
-          int rnd = random(0,7);
-          moduleCellToDump[l] = rnd;
+        moduleCellToDump[l] = 0;
+        int rnd = random(0,7);
+        moduleCellToDump[l] = rnd;
     }
 
     for(int l = 0; l < 10; l++)
     {
-          moduleCellToReceive[l] = 0;
-          int rnd = random(0,7);
-          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
-          
+        moduleCellToReceive[l] = 0;
+        int rnd = random(0,7);
+        if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
+        
     }
-
-    
 }
