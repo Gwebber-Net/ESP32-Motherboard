@@ -1,2 +1,2 @@
-char* ssid = "";
-char* password = "";
+char* ssid = "H220RK";
+char* password = "jfmamjjasond";
