@@ -560,13 +560,13 @@ void InitialiseServer()
     randomSeed(analogRead(0));
 
     int rnd = random(0,20);
-    moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
+    moduleVoltages[0][0] = 2.2 + (0.1 * rnd);
     for(int l = 0; l < 10; l++)
     {
         for(int k = 1; k < 8; k++)
         {
             int rnd = random(0,20);
-            moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
+            moduleVoltages[l][k] = 2.2 + (0.1 * rnd);
         }
     }
 
