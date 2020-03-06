@@ -35,6 +35,15 @@ char webpage[] PROGMEM = R"=====(
 char www_js_nrg[] PROGMEM = R"=====(
 var global_interval = 5000;
 
+// Label of pack chart
+var setting = {};
+setting['pack_label'] = "pack";
+setting['pack_voltage_label'] = "Pack Voltage";
+setting['pack_bgcolor_low'] = "rgba(229,12,12,0.7)";
+setting['pack_bgcolor_norm'] = "rgba(12,12,229,0.7)";
+setting['pack_bdcolor_low'] = "rgba(54, 162, 235, 1)";
+setting['pack_bdcolor_norm'] = "rgba(54, 162, 235, 1)";
+
 var bstate_none = new Image()
 bstate_none.src ='assets/images/bstate_none.png';
 
@@ -44,7 +53,7 @@ bstate_left.src ='assets/images/bstate_left.png';
 var bstate_right = new Image()
 bstate_right.src ='assets/images/bstate_right.png';
 
-var url_path = window.location.pathname;
+var url_path = window.location.href;
 //DEBUG
 var url_path = '';
 
@@ -53,8 +62,6 @@ bstate_bidirectional.src ='assets/images/bstate_both.png';
 
 var data
 var pack_level_canvas = null;
-var pack_history_canvas = null;
-var pack_history_last_ts = null;
 Chart.defaults.global.elements.line.fill = false;
 
 var last_status = { status:'Offline', message:'starting up', code: 200 };;
@@ -62,9 +69,10 @@ var connection = { status:'Offline', message:'starting up', code: 200 };
 
 var int_summary = null;
 var int_pack_info = null;
-var int_pack_history = null;
 
-var settings = null;
+var global_summary;
+
+var global_settings = null;
 var auth_uuid = null;
 
 function unix2date(datetime) {
@@ -89,18 +97,14 @@ function main_interval() {
     if ( connection.status != last_status.status ) {
         clearInterval(int_summary);
         clearInterval(int_pack_info);
-        clearInterval(int_pack_history);
         if ( connection.status == 'Online' ) {
-
             get_summary();
             get_pack_info();
             console.log('Offline to Online recovery');
-            //load_pack_history();
 
             // Go online
             int_summary = setInterval(function(){ get_summary() }, global_interval);
-            int_pack_info = setInterval(function(){ get_pack_info() }, global_interval);
-            //int_pack_history = setInterval(function(){ update_pack_history(pack_history_last_ts) }, global_interval);
+            int_pack_info = setInterval(function(){ get_pack_info() }, global_interval);            
         }
     } else if ( connection.status == 'Offline' ) {
         console.log('main_interval: Attempting reconnect');
@@ -108,7 +112,6 @@ function main_interval() {
             get_summary();
             get_pack_info();
             console.log('main_interval: Offline recovery');
-            //load_pack_history();
         });
     }
     last_status = connection;
@@ -149,8 +152,8 @@ function get_config(success) {
 
             $(box).find('.form-row').remove();
 
-            settings = configuration;
-            $.each(settings, function(key, value){
+            global_settings = configuration;
+            $.each(global_settings, function(key, value){
                 console.log(key, value);
 
                 clone = $(tpl).clone();
@@ -202,7 +205,7 @@ function get_config(success) {
 function save_config() {
     conf_post = {}
 
-    $.each(settings, function(idx, setting){
+    $.each(global_settings, function(idx, setting){
         var set_name = setting.setting;
         var set_value = $('#'+setting.setting).val();
 
@@ -266,9 +269,7 @@ function save_config() {
 }
 
 function update_main_summary(summary_data) {
-    //console.log(summary_data);
     $.each(summary_data, function(key,value){
-        //console.log(key, value);
         $('.summary_'+key).text(value);
     });
 }
@@ -280,6 +281,7 @@ function get_summary() {
         url: url_path+'api/summary',
         dataType: 'json',
         success: function(pack_data) {
+            global_summary = pack_data;
             update_main_summary(pack_data)
         },
         error: function(xhr, ajaxOptions, thrownError) {
@@ -301,36 +303,23 @@ function setup_pack_info(size=0){
     for (i = 0; i < size; i++) {
         labels.push('pack'+(i));
     }
-    // var ctx_info = null;
-    // var ctx_history = null;
 
     //'pack1', 'pack2', 'pack3', 'pack4', 'pack5', 'pack6']
     if ( ! pack_level_canvas ) {
         pack_level_canvas = new Chart(ctx_info, {
             type: 'bar',
             data: {
-                labels: labels,
+                labels: [],
                 datasets: [{
-                    label: 'cell voltage',
+                    label: setting['pack_voltage_label'],
                     data: [],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2,
-                },
-                {
-                  //type: 'category',
-                  label: 'balance state',
-                  //pointRadius: [15, 15, 15, 15, 15],
-                  //pointHoverRadius: 20,
-                  //pointHitRadius: 20,
-                  pointStyle: [],
-                  pointBackgroundColor: 'rgba(0,191,255)',
-                  data: [],
-                  type: 'line'
-                }
-                ]
+                    backgroundColor: [],
+                    borderColor: [],
+                    borderWidth: 1
+                }],
             },
             options: {
+                responsive: true,
                 scales: {
                     yAxes: [{
                         ticks: {
@@ -351,13 +340,25 @@ function setup_pack_info(size=0){
 }
 
 function update_pack_info(pack_data) {
+    var pack_labels = [];
     var pack_values = [];
     var pack_bstates = [];
+    var pack_bgcolor = [];
+    var pack_bdcolor  = [];
     var pack_total_voltage = 0;
     var previous_bstate = 0;
+
     $.each(pack_data, function(key, value) {
         pack_values.push(value.voltage);
-        pack_total_voltage = pack_total_voltage+value.voltage;
+        pack_labels.push(setting['pack_label']+(key+1));
+        if (typeof(global_summary) != "undefined" && key == global_summary.lowestcell) {
+            pack_bgcolor.push(setting['pack_bgcolor_low']);
+            pack_bdcolor.push(setting['pack_bdcolor_low']);
+        } else {
+            pack_bgcolor.push(setting['pack_bgcolor_norm']);
+            pack_bdcolor.push(setting['pack_bdcolor_norm']);
+        }
+
         switch( value.balance_state ) {
             case 0:
                 if (previous_bstate == 2) {
@@ -392,7 +393,8 @@ function update_pack_info(pack_data) {
     });
 
     $('.summary_pack_voltage').text(pack_total_voltage.toFixed(2)+' Volts');
-
+    
+    // FIXME is this required, config should send that info
     var pack_size = $(pack_values).length;
     if ( pack_size != pack_level_canvas.data.datasets[0].data.length ) {
         // Pack size changed
@@ -401,9 +403,12 @@ function update_pack_info(pack_data) {
         setup_pack_info(pack_size);
     }
 
+    pack_level_canvas.data.labels = pack_labels;
     pack_level_canvas.data.datasets[0].data = pack_values;
-    pack_level_canvas.data.datasets[1].data = pack_values;
-    pack_level_canvas.data.datasets[1].pointStyle = pack_bstates;
+    pack_level_canvas.data.datasets[0].backgroundColor = pack_bgcolor;
+    pack_level_canvas.data.datasets[0].borderColor = pack_bdcolor;
+    //TODO pack_level_canvas.data.datasets[1].data = pack_values;
+    //TODO pack_level_canvas.data.datasets[1].pointStyle = pack_bstates;
     pack_level_canvas.update();
 }
 
@@ -453,6 +458,7 @@ char www_css[] PROGMEM = R"=====(
 @import url(//db.onlinewebfonts.com/c/233131eb5b5e4a930cbdfb07008a09e1?family=LCD);
 body {
     background-color: #101050;
+    color: #f0f0f0
 }
 #menu {
     margin: 10px;
@@ -472,116 +478,59 @@ body {
 }
 )=====";
 
-
-
-
-// void SendPackInfo()
-// {
-//     String output = PackInfo();
-//      server.send(200,"application/json",output);  
-// }
-//
-//void SendSummary()
-//{
-//    String summary = Summary();
-//    server.send(200,"application/json",summary);
-//}
-//
-//void SendConfig()
-//{
-//    String settings = Settings();
-//    Serial.println(settings);
-//    server.send(200,"application/json",settings);
-//}
-//
-//void handleNotFound(){
-//    server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
-//}
-
-void InitialiseServer()
-{
-//    server.on("/",[](){
-//        Serial.println("Service: /index.html");
-//        server.send_P(200, "text/html", webpage);}
-//    );
-//    server.on("/js/nrg.js",[](){
-//        Serial.println("Service: /js/nrg.js");
-//        server.send_P(200, "application/x-javascript", www_js_nrg);}
-//    );
-//    server.on("/css/nrg.css",[](){
-//        Serial.println("Service: /css/nrg.css");
-//        server.send_P(200, "text/css", www_css);
-//    });  
-//    server.on("/api/packinfo", [](){
-//        Serial.println("Service: /api/packinfo");
-//        SendPackInfo();
-//    });
-//    server.on("/api/config", SendConfig);
-//    server.on("/api/summary", [](){
-//        Serial.println("Service: /api/summary");
-//        SendSummary();
-//    });
-//
-//    server.onNotFound(handleNotFound);
-
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){   
+void InitialiseServer() {
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", webpage);
   });
-    server.on("/js/nrg.js", HTTP_GET, [](AsyncWebServerRequest *request){   
+  server.on("/js/nrg.js", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "application/x-javascript", www_js_nrg);
   });
-    server.on("/css/nrg.css", HTTP_GET, [](AsyncWebServerRequest *request){   
+  server.on("/css/nrg.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/css", www_css);
-  }); 
-  
-  server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request){  
+  });
+  server.on("/api/config", HTTP_GET, [](AsyncWebServerRequest *request) {
     String settings = Settings();
-    //Serial.println(settings);
+    // Serial.println(settings);
     request->send(200, "application/json", settings);
-  });     
-
-  server.on("/api/summary", HTTP_GET, [](AsyncWebServerRequest *request){  
+  });
+  server.on("/api/summary", HTTP_GET, [](AsyncWebServerRequest *request) {
     String summary = Summary();
-    //Serial.println(settings);
+    // Serial.println(settings);
     request->send(200, "application/json", summary);
-  }); 
-
-  server.on("/api/packinfo", HTTP_GET, [](AsyncWebServerRequest *request){  
+  });
+  server.on("/api/packinfo", HTTP_GET, [](AsyncWebServerRequest *request) {
     String packinfo = PackInfo();
-    //Serial.println(settings);
+    // Serial.println(settings);
     request->send(200, "application/json", packinfo);
-  }); 
-     
-    server.begin();
+  });
 
-    cellCount = 7;
-    
-    // Random generatar for the voltages and balance states
-    randomSeed(analogRead(0));
+  server.begin();
 
-    int rnd = random(0,20);
-    moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
-    for(int l = 0; l < 10; l++)
-    {
-        for(int k = 1; k < 8; k++)
-        {
-            int rnd = random(0,20);
-            moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
-        }
+  cellCount = 7;
+
+  // Random generatar for the voltages and balance states
+  randomSeed(analogRead(0));
+
+  int rnd = random(0, 20);
+  moduleVoltages[0][0] = 3.5 + (0.25 * rnd);
+  for (int l = 0; l < 10; l++) {
+    for (int k = 1; k < 8; k++) {
+      int rnd = random(0, 20);
+      moduleVoltages[l][k] = 3.5 + (0.25 * rnd);
     }
+  }
 
-    for(int l = 0; l < 10; l++)
-    {
-        moduleCellToDump[l] = 0;
-        int rnd = random(0,7);
-        moduleCellToDump[l] = rnd;
-    }
+  for (int l = 0; l < 10; l++) {
+    moduleCellToDump[l] = 0;
+    int rnd = random(0, 7);
+    moduleCellToDump[l] = rnd;
+  }
 
-    for(int l = 0; l < 10; l++)
-    {
-        moduleCellToReceive[l] = 0;
-        int rnd = random(0,7);
-        if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
-        
+  for (int l = 0; l < 10; l++) {
+    moduleCellToReceive[l] = 0;
+    int rnd = random(0, 7);
+    if (!moduleCellToDump[l]) {
+      moduleCellToReceive[l] = rnd;
     }
+  }
 }
