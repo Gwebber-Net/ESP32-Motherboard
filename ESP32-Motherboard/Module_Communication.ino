@@ -390,11 +390,19 @@ String cellToBalanceState(byte cellNumber)
   byte highestcell = GetHighestCell();
   float voltage = (float)24.1;
   float current = (float)3.33;
-  StaticJsonDocument<100> doc;
-  doc["voltage"] = voltage;
-  doc["current"] = current;
-  doc["lowestcell"] = lowestcell;
-  doc["highestcell"] = highestcell;
+  StaticJsonDocument<200> doc;
+  JsonArray array = doc.to<JsonArray>();
+  
+  JsonObject nested = array.createNestedObject();
+    doc["voltage"] = voltage;
+ 
+
+  JsonObject nested1 = array.createNestedObject();
+   doc["current"] = current;
+   JsonObject nested2 = array.createNestedObject();
+  nested2["lowestcell"] = lowestcell;
+  JsonObject nested3 = array.createNestedObject();
+  nested3["highestcell"] = highestcell;
   String output;
   serializeJson(doc, output);
   return output;
