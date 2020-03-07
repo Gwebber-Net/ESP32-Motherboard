@@ -394,11 +394,11 @@ String cellToBalanceState(byte cellNumber)
   JsonArray array = doc.to<JsonArray>();
   
   JsonObject nested = array.createNestedObject();
-    doc["voltage"] = voltage;
+    nested["voltage"] = voltage;
  
 
   JsonObject nested1 = array.createNestedObject();
-   doc["current"] = current;
+   nested1["current"] = current;
    JsonObject nested2 = array.createNestedObject();
   nested2["lowestcell"] = lowestcell;
   JsonObject nested3 = array.createNestedObject();
