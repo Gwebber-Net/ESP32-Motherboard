@@ -34,8 +34,12 @@ var global_interval = 5000;
 var setting = {};
 var language = {};
 
+// Chart X-axis label
 language['pack_label'] = "pack";
+// Chart Legend label
+language['cell_voltage_label'] = "Pack Voltage";
 language['balance_state_label'] = "Balance State";
+// Summary label
 language['voltage'] = "Pack Voltage";
 language['current'] = "Pack Current";
 language['lowestcell'] = "Lowest Cell";
@@ -321,7 +325,7 @@ function setup_pack_info(size=0){
             data: {
                 labels: [],
                 datasets: [{
-                    label: language['pack_voltage_label'],
+                    label: language['cell_voltage_label'],
                     data: [],
                     backgroundColor: [],
                     borderColor: [],
