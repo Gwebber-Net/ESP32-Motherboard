@@ -15,13 +15,8 @@ char webpage[] PROGMEM = R"=====(
 <body>
     <div style='width: 100%; height: 100%; display: table;'>
         <div id='menu'>
-            <div style='display: table-row; width:100%'>
-                <div class='summary'> Pack Voltage (V)<div id='summary_value voltage' class='summary_value summary_voltage'>-</div> </div>
-                <div class='summary'> Current (A) <div id='summary_value current' class='summary_value summary_current'>-</div></div>
-                <div class='summary'> Lowest Cell  <div id='summary_value lowest_cell' class='summary_value summary_lowestcell'>-</div></div>
-                <div class='summary'> Highest Cell <div id='summary_value highest_cell' class='summary_value summary_highestcell'>-</div></div>
-                <div class='summary'> spare box <div id='summary_value spare1' class='summary_value'></div></div>
-                <div class='summary'> [*] <div id='summary_value spare2' class='summary_value'></div></div>
+            <div class='summary_item hidden'><div class='summary_item label_key'>-</div><div class='summary_item label_value'>-</div> </div>
+            <div class='summary_bar' style='display: table-row; width:100%'>
             </div>
         </div>
         <div class="chart-container" style="position: relative; height:50vh; width:95vw">
@@ -37,9 +32,16 @@ var global_interval = 5000;
 
 // Label of pack chart
 var setting = {};
-setting['pack_label'] = "pack";
-setting['pack_voltage_label'] = "Pack Voltage";
-setting['balance_state_label'] = "Balance State";
+var language = {};
+
+language['pack_label'] = "pack";
+language['balance_state_label'] = "Balance State";
+language['voltage'] = "Pack Voltage";
+language['current'] = "Pack Current";
+language['lowestcell'] = "Lowest Cell";
+language['highestcell'] = "Highest Cell";
+language['soc'] = "State Of Charge";
+
 setting['pack_bgcolor_low'] = "rgba(229,12,12,0.7)";
 setting['pack_bgcolor_norm'] = "rgba(12,12,229,0.7)";
 setting['pack_bdcolor_low'] = "rgba(54, 162, 235, 1)";
@@ -47,15 +49,11 @@ setting['pack_bdcolor_norm'] = "rgba(54, 162, 235, 1)";
 
 var bstate_none = new Image()
 bstate_none.src ='assets/images/bstate_none.png';
-
 var bstate_left = new Image()
 bstate_left.src ='assets/images/bstate_left.png';
-
 var bstate_right = new Image()
 bstate_right.src ='assets/images/bstate_right.png';
 
-var url_path = window.location.href;
-//DEBUG
 var url_path = '';
 
 var bstate_bidirectional = new Image();
@@ -154,8 +152,8 @@ function get_config(success) {
             $(box).find('.form-row').remove();
 
             global_settings = configuration;
-            $.each(global_settings, function(key, value){
-                console.log(key, value);
+            $.each(global_settings, function(k, value){
+                console.log(k, value);
 
                 clone = $(tpl).clone();
                 $(clone).find('.description').html(value.label+'<br/>'+value.description);
@@ -270,8 +268,19 @@ function save_config() {
 }
 
 function update_main_summary(summary_data) {
-    $.each(summary_data, function(key,value){
-        $('.summary_'+key).text(value);
+    // TODO fake
+    var summary_data = [{"voltage":24.1},{"current":3.33},{"lowestcell":0},{"highestcell":6},{"soc" : 80}]
+    // Clear all current data
+    $('.summary_bar .summary_item').remove();
+    // Popolate new data
+    $.each(summary_data, function(idx){
+        var tpl = $('.summary_item.hidden').clone().removeClass('hidden');
+        $.each(summary_data[idx], function(k,v){
+            // TODO use language
+            $(tpl).find('.label_key').text(language[k]);
+            $(tpl).find('.label_value').text(v);
+        });
+        $(".summary_bar").append(tpl);
     });
 }
 
@@ -312,14 +321,14 @@ function setup_pack_info(size=0){
             data: {
                 labels: [],
                 datasets: [{
-                    label: setting['pack_voltage_label'],
+                    label: language['pack_voltage_label'],
                     data: [],
                     backgroundColor: [],
                     borderColor: [],
                     borderWidth: 1
                 },
                 {
-                  label: setting['balance_state_label'],
+                  label: language['balance_state_label'],
                   pointStyle: [],
                   pointBackgroundColor: 'rgba(0,191,255)',
                   data: [],
@@ -356,10 +365,10 @@ function update_pack_info(pack_data) {
     var pack_total_voltage = 0;
     var previous_bstate = 0;
 
-    $.each(pack_data, function(key, value) {
+    $.each(pack_data, function(k, value) {
         pack_values.push(value.voltage);
-        pack_labels.push(setting['pack_label']+(key+1));
-        if (typeof(global_summary) != "undefined" && key == global_summary.lowestcell) {
+        pack_labels.push(language['pack_label']+k);
+        if (typeof(global_summary) != "undefined" && k == global_summary.lowestcell) {
             pack_bgcolor.push(setting['pack_bgcolor_low']);
             pack_bdcolor.push(setting['pack_bdcolor_low']);
         } else {
@@ -469,20 +478,37 @@ body {
     color: #f0f0f0
 }
 #menu {
-    margin: 10px;
-    padding: 10px;
+    margin: 5px;
+    padding: 5px;
+    height: 100px;
     border: 5px solid #202080;
     font-family: "Verdana", Times, serif;
+}
+.summary_bar {
+    display: table-row;
+    width:100%;
+}
+.label_key {
+    float: left;
 }
 .summary {
     display: table-cell;
     width: 150px;
+    text-align: center;
+    float: left;
+}
+.summary_item {
+    display: table-cell;
+    width: 150px;
     text-align: center 
 }
-.summary_value {
+.summary_item.label_value {
     font-family: 'LCD',blank,arial;
     font-size: 80px;
     text-align: center;
+}
+.hidden {
+    display: none;
 }
 )=====";
 
