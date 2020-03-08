@@ -46,10 +46,15 @@ language['lowestcell'] = "Lowest Cell";
 language['highestcell'] = "Highest Cell";
 language['soc'] = "State Of Charge";
 
-setting['pack_bgcolor_low'] = "rgba(229,12,12,0.7)";
-setting['pack_bgcolor_norm'] = "rgba(12,12,229,0.7)";
-setting['pack_bdcolor_low'] = "rgba(54, 162, 235, 1)";
-setting['pack_bdcolor_norm'] = "rgba(54, 162, 235, 1)";
+setting['pack_bgcolor_receiving'] = 'rgba(0,102,0,1)';
+setting['pack_bgcolor_dumping'] = 'rgba(255,204,51,1)';
+setting['pack_bgcolor_none'] = 'rgba(0,0,153,1)';
+setting['pack_bgcolor_passthrough'] = 'rgba(255,204,102,1)';
+
+setting['pack_bdcolor_receiving'] = 'rgba(54, 162, 235, 1)';
+setting['pack_bdcolor_dumping'] = 'rgba(162, 162, 235, 1)';
+setting['pack_bdcolor_none'] = 'rgba(54, 162, 235, 1)';
+setting['pack_bdcolor_passthrough'] = 'rgba(70, 112, 95, 1)';
 
 var bstate_none = new Image()
 bstate_none.src ='assets/images/bstate_none.png';
@@ -272,8 +277,6 @@ function save_config() {
 }
 
 function update_main_summary(summary_data) {
-    // TODO fake
-    var summary_data = [{"voltage":24.1},{"current":3.33},{"lowestcell":0},{"highestcell":6},{"soc" : 80}]
     // Clear all current data
     $('.summary_bar .summary_item').remove();
     // Popolate new data
@@ -372,46 +375,10 @@ function update_pack_info(pack_data) {
     $.each(pack_data, function(k, value) {
         pack_values.push(value.voltage);
         pack_labels.push(language['pack_label']+k);
-        if (typeof(global_summary) != "undefined" && k == global_summary.lowestcell) {
-            pack_bgcolor.push(setting['pack_bgcolor_low']);
-            pack_bdcolor.push(setting['pack_bdcolor_low']);
-        } else {
-            pack_bgcolor.push(setting['pack_bgcolor_norm']);
-            pack_bdcolor.push(setting['pack_bdcolor_norm']);
-        }
-
-        switch( value.balance_state ) {
-            case 0:
-                if (previous_bstate == 2) {
-                    pack_bstates.push(bstate_left);
-                } else {
-                     pack_bstates.push(bstate_none);
-                }
-                break;
-            case 1:
-                if (previous_bstate == 2) {
-                    pack_bstates.push(bstate_bidirectional);
-                } else {
-                    pack_bstates.push(bstate_right);
-                }
-                break;
-            case 2:
-                if (previous_bstate == 2) {
-                    pack_bstates.push(bstate_left);
-                } else {
-                    pack_bstates.push(bstate_none);
-                }
-                break;
-            case 255:
-                if (previous_bstate == 2) {
-                    pack_bstates.push(bstate_left);
-                } else {
-                    pack_bstates.push(bstate_none);
-                }
-                break;
-        }
-        previous_bstate = value.balance_state;
+        pack_bgcolor.push(setting['pack_bgcolor_'+value['bstate']]);
+        pack_bdcolor.push(setting['pack_bdcolor_'+value['bstate']]);
     });
+
 
     $('.summary_pack_voltage').text(pack_total_voltage.toFixed(2)+' Volts');
     
