@@ -17,6 +17,8 @@ float moduleVoltages[10][8]; // 10 Modules maximum, and 8 voltages per module
 byte  moduleCellToDump[10];
 byte  moduleCellToReceive[10];
 
+float totalVoltage;
+
 
 ////////////////////////////
 ////////////////////////////
@@ -354,41 +356,12 @@ String cellToBalanceState(byte cellNumber)
  String Summary()
  {
 
-  // Random generatar for the voltages and balance states
-  randomSeed(analogRead(0));
-
-  int rnd = random(0,20);
-  moduleVoltages[0][0] = 2.2 + (0.1 * rnd);
-  for(int l = 0; l < 10; l++)
-    {
-      for(int k = 1; k < 8; k++)
-      {
-          int rnd = random(0,20);
-          moduleVoltages[l][k] = 2.2 + (0.1 * rnd);
-      }
-    }
-
-    for(int l = 0; l < 10; l++)
-    {
-      moduleCellToDump[l] = 0;
-          int rnd = random(0,7);
-          moduleCellToDump[l] = rnd;
-    }
-
-    for(int l = 0; l < 10; l++)
-    {
-          moduleCellToReceive[l] = 0;
-          int rnd = random(0,7);
-          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
-          
-    }
-
-    // Random Generator
+  GenerateRandomData();
 
   
   byte lowestcell = GetLowestCell();
   byte highestcell = GetHighestCell();
-  float voltage = (float)24.1;
+  float voltage = totalVoltage;
   float current = (float)3.33;
   StaticJsonDocument<200> doc;
   JsonArray array = doc.to<JsonArray>();
@@ -463,4 +436,58 @@ String cellToBalanceState(byte cellNumber)
   return output;
   
 
+ }
+
+
+ void GenerateRandomData()
+ {
+  // Random generatar for the voltages and balance states
+  randomSeed(analogRead(0));
+
+  int rnd = random(0,20);
+  moduleVoltages[0][0] = 2.2 + (0.1 * rnd);
+  for(int l = 0; l < 10; l++)
+    {
+      for(int k = 1; k < 8; k++)
+      {
+          int rnd = random(0,20);
+          moduleVoltages[l][k] = 2.2 + (0.1 * rnd);
+      }
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+      moduleCellToDump[l] = 0;
+          int rnd = random(0,7);
+          moduleCellToDump[l] = rnd;
+    }
+
+    for(int l = 0; l < 10; l++)
+    {
+          moduleCellToReceive[l] = 0;
+          int rnd = random(0,7);
+          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
+          
+    }
+
+    // Random Generator
+    //totalVoltage
+    totalVoltage += moduleVoltages[0][0];
+    byte counter = 1;
+    for(int i = 0; i < 10; i++)
+    {
+      for(int j = 0; j < 8; j++)
+      {
+        totalVoltage += moduleVoltages[i][j];
+        counter++;
+        if(counter == cellCount)
+        {
+          break;
+        }
+      }
+      if(counter == cellCount)
+        {
+          break;
+        }
+    }
  }

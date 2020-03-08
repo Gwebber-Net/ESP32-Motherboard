@@ -544,32 +544,5 @@ void InitialiseServer() {
     // TODO - move cellCount to summary or some config, move moduleVoltages randomness to comms where it should be (ie if not reading from modules, fake it) 
     cellCount = 7;
     
-    // Random generatar for the voltages and balance states 
-    randomSeed(analogRead(0));
-
-    int rnd = random(0,20);
-    moduleVoltages[0][0] = 2.2 + (0.1 * rnd);
-    for(int l = 0; l < 10; l++)
-    {
-        for(int k = 1; k < 8; k++)
-        {
-            int rnd = random(0,20);
-            moduleVoltages[l][k] = 2.2 + (0.1 * rnd);
-        }
-    }
-
-    for(int l = 0; l < 10; l++)
-    {
-        moduleCellToDump[l] = 0;
-        int rnd = random(0,7);
-        moduleCellToDump[l] = rnd;
-    }
-
-    for(int l = 0; l < 10; l++)
-    {
-        moduleCellToReceive[l] = 0;
-        int rnd = random(0,7);
-        if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
-        
-    }
+    GenerateRandomData();
 }
