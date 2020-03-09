@@ -497,6 +497,9 @@ String cellToBalanceState(byte cellNumber)
 
 String AllData()
  {
+
+  GenerateRandomData();
+  
   StaticJsonDocument<2000> doc;
   JsonObject obj = doc.to<JsonObject>();
 
