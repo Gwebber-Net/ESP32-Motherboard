@@ -558,7 +558,7 @@ String SummaryAndPackinfo()
   
   
   String output;
-  serializeJsonPretty(doc,Serial);
+  serializeJson(doc,Serial);
   return output;
  }
 
