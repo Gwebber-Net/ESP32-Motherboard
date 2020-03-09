@@ -75,10 +75,9 @@ Chart.defaults.global.elements.line.fill = false;
 var last_status = { status:'Offline', message:'starting up', code: 200 };;
 var connection = { status:'Offline', message:'starting up', code: 200 };
 
-var int_summary = null;
-var int_pack_info = null;
-
-var global_summary;
+//var int_summary = null;
+//var int_pack_info = null;
+var int_alldata = null;
 
 var global_settings = null;
 var auth_uuid = null;
@@ -99,26 +98,22 @@ function unix2date(datetime) {
 }
 
 function main_interval() {
-    //console.log('STATUS ',connection.status, last_status.status);
-
     // State changed
     if ( connection.status != last_status.status ) {
-        clearInterval(int_summary);
-        clearInterval(int_pack_info);
+        //clearInterval(int_summary);
+        //clearInterval(int_pack_info);
+        clearInterval(int_alldata);
         if ( connection.status == 'Online' ) {
-            get_summary();
-            get_pack_info();
+            get_alldata();
             console.log('Offline to Online recovery');
 
-            // Go online
-            int_summary = setInterval(function(){ get_summary() }, global_interval);
-            int_pack_info = setInterval(function(){ get_pack_info() }, global_interval);            
+            // Go online           
+            int_alldata = setInterval(function(){ get_alldata() }, global_interval);    
         }
     } else if ( connection.status == 'Offline' ) {
         console.log('main_interval: Attempting reconnect');
         get_config(function(){
-            get_summary();
-            get_pack_info();
+            get_alldata();
             console.log('main_interval: Offline recovery');
         });
     }
@@ -291,30 +286,6 @@ function update_main_summary(summary_data) {
     });
 }
 
-function get_summary() {
-    $.ajax({
-        method: 'GET',
-        contentType: 'application/json',
-        url: url_path+'api/summary',
-        dataType: 'json',
-        success: function(pack_data) {
-            global_summary = pack_data;
-            update_main_summary(pack_data)
-        },
-        error: function(xhr, ajaxOptions, thrownError) {
-            console.log( 'get_summary: ' + thrownError+' '+ xhr.statusText);
-            connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
-        },
-        fail: function(jqXHR, textStatus, errorThrown) {
-            console.log( 'get_summary: ' + thrownError+' '+ xhr.statusText );
-            connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
-        },
-        done: function() {
-            console.log('done')
-        }
-    });
-}
-
 function setup_pack_info(size=0){
     labels = []
     for (i = 0; i < size; i++) {
@@ -379,7 +350,6 @@ function update_pack_info(pack_data) {
         pack_bdcolor.push(setting['pack_bdcolor_'+value['bstate']]);
     });
 
-
     $('.summary_pack_voltage').text(pack_total_voltage.toFixed(2)+' Volts');
     
     // FIXME is this required, config should send that info
@@ -400,25 +370,23 @@ function update_pack_info(pack_data) {
     pack_level_canvas.update();
 }
 
-function get_pack_info() {
+function get_alldata() {
     $.ajax({
         method: 'GET',
         contentType: 'application/json',
-        url: url_path+'api/packinfo',
+        url: url_path+'api/alldata',
         dataType: 'json',
-        success: function(pack_data) {
-            update_pack_info(pack_data)
+        success: function(alldata) {
+            update_pack_info(alldata['packinfo']);            
+            update_main_summary(alldata['summary'])
         },
         error: function(xhr, ajaxOptions, thrownError) {
-            console.log( 'get_pack_info: ' + thrownError+' '+ xhr.statusText);
+            console.log( 'get_alldata: ' + thrownError+' '+ xhr.statusText);
             connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
         },
         fail: function(jqXHR, textStatus, errorThrown) {
-            console.log( 'get_pack_info: ' + thrownError+' '+ xhr.statusText );
+            console.log( 'get_alldata: ' + thrownError+' '+ xhr.statusText );
             connection = {status:'Offline', message:'Check system is up and on the network', code: xhr.status};
-        },
-        done: function() {
-            console.log('done')
         }
     });
 }
@@ -436,9 +404,7 @@ $(document).ready(function(){
         });
     });
 
-    get_summary();
-    get_pack_info();
-
+    get_alldata();
 });
 )=====";
 
@@ -505,7 +471,10 @@ void InitialiseServer() {
         String packinfo = PackInfo();
         request->send(200, "application/json", packinfo);
     });
-
+    server.on("/api/alldata", HTTP_GET, [](AsyncWebServerRequest *request) {
+        String alldata = AllData();
+        request->send(200, "application/json", alldata);
+    });
     server.begin();
 
     // TODO - move cellCount to summary or some config, move moduleVoltages randomness to comms where it should be (ie if not reading from modules, fake it) 

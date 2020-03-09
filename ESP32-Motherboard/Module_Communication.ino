@@ -562,8 +562,6 @@ String AllData()
   
   
   String output;
-  serializeJson(doc,Serial);
+  serializeJson(doc, output);
   return output;
  }
-
- 
