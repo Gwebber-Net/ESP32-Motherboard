@@ -474,6 +474,7 @@ String cellToBalanceState(byte cellNumber)
 
     // Random Generator
     //totalVoltage
+    totalVoltage = 0;
     totalVoltage += moduleVoltages[0][0];
     byte counter = 1;
     for(int i = 0; i < 10; i++)
