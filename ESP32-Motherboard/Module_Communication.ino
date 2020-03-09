@@ -438,6 +438,8 @@ String cellToBalanceState(byte cellNumber)
 
  }
 
+ 
+
 
  void GenerateRandomData()
  {
@@ -491,3 +493,73 @@ String cellToBalanceState(byte cellNumber)
         }
     }
  }
+
+
+String SummaryAndPackinfo()
+ {
+  StaticJsonDocument<2000> doc;
+  JsonObject obj = doc.to<JsonObject>();
+
+  //JsonObject summary = obj.createNestedObject("summary");
+
+  
+  byte lowestcell = GetLowestCell();
+  byte highestcell = GetHighestCell();
+  float voltage = totalVoltage;
+  float current = (float)3.33;
+  
+  JsonArray array = obj.createNestedArray("summary");
+  
+  JsonObject nested = array.createNestedObject();
+    nested["voltage"] = voltage;
+ 
+
+  JsonObject nested1 = array.createNestedObject();
+   nested1["current"] = current;
+   JsonObject nested2 = array.createNestedObject();
+  nested2["lowestcell"] = lowestcell;
+  JsonObject nested3 = array.createNestedObject();
+  nested3["highestcell"] = highestcell;
+
+
+
+
+  JsonArray packinfo = obj.createNestedArray("packinfo");
+
+    
+
+    JsonObject arr;
+    arr = packinfo.createNestedObject(); // Create a Nested Object  
+    arr["cell"] = 0;
+    arr["voltage"] = moduleVoltages[0][0];
+    arr["bstate"] = cellToBalanceState(0);
+    byte counter = 1;
+    for(int l = 0; l < 10; l++)
+    {
+      for(int k = 1; k < 8; k++)
+      {
+        JsonObject arr = packinfo.createNestedObject(); // Create a Nested Object  
+        arr["cell"] = counter;
+        arr["voltage"] = moduleVoltages[l][k];
+        arr["bstate"] = cellToBalanceState(counter);
+        counter++;
+        if(counter == cellCount)
+        {
+          break;
+        }
+      }
+      if(counter == cellCount)
+      {
+        break;
+      }
+    }
+
+
+  
+  
+  String output;
+  serializeJsonPretty(doc,Serial);
+  return output;
+ }
+
+ 
