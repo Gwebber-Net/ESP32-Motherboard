@@ -468,7 +468,7 @@ String cellToBalanceState(byte cellNumber)
     {
           moduleCellToReceive[l] = 0;
           int rnd = random(0,7);
-          if(!moduleCellToDump[l]) {moduleCellToReceive[l] = rnd; }
+          if(!(moduleCellToDump[l] == rnd)) {moduleCellToReceive[l] = rnd; }
           
     }
 
