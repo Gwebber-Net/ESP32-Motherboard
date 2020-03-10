@@ -409,7 +409,7 @@ $(document).ready(function(){
 )=====";
 
 char www_css[] PROGMEM = R"=====(
-@import url(//db.onlinewebfonts.com/c/233131eb5b5e4a930cbdfb07008a09e1?family=LCD);
+@import url(https://db.onlinewebfonts.com/c/233131eb5b5e4a930cbdfb07008a09e1?family=LCD);
 body {
     background-color: #101050;
     color: #f0f0f0
