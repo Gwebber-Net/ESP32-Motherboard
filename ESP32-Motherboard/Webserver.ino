@@ -5,7 +5,7 @@ char webpage[] PROGMEM = R"=====(
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
     <meta content="utf-8" http-equiv="encoding" />
-    <link href='/css/nrg.css' rel='stylesheet' type='text/css' />
+    <link href='css/nrg.css' rel='stylesheet' type='text/css' />
 
     <script src='https://code.jquery.com/jquery-3.4.1.min.js' integrity='sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=' crossorigin='anonymous'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js'></script>
@@ -409,7 +409,7 @@ $(document).ready(function(){
 )=====";
 
 char www_css[] PROGMEM = R"=====(
-@import url(//db.onlinewebfonts.com/c/233131eb5b5e4a930cbdfb07008a09e1?family=LCD);
+@import url(https://db.onlinewebfonts.com/c/233131eb5b5e4a930cbdfb07008a09e1?family=LCD);
 body {
     background-color: #101050;
     color: #f0f0f0
