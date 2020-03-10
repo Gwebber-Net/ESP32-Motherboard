@@ -409,7 +409,14 @@ $(document).ready(function(){
 )=====";
 
 char www_css[] PROGMEM = R"=====(
-@import url(https://db.onlinewebfonts.com/c/233131eb5b5e4a930cbdfb07008a09e1?family=LCD);
+@font-face {font-family: "LCD";
+    src: url("//db.onlinewebfonts.com/t/233131eb5b5e4a930cbdfb07008a09e1.eot"); /* IE9*/
+    src: url("//db.onlinewebfonts.com/t/233131eb5b5e4a930cbdfb07008a09e1.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+    url("//db.onlinewebfonts.com/t/233131eb5b5e4a930cbdfb07008a09e1.woff2") format("woff2"), /* chrome firefox */
+    url("//db.onlinewebfonts.com/t/233131eb5b5e4a930cbdfb07008a09e1.woff") format("woff"), /* chrome firefox */
+    url("//db.onlinewebfonts.com/t/233131eb5b5e4a930cbdfb07008a09e1.ttf") format("truetype"), /* chrome firefox opera Safari, Android, iOS 4.2+*/
+    url("//db.onlinewebfonts.com/t/233131eb5b5e4a930cbdfb07008a09e1.svg#LCD") format("svg"); /* iOS 4.1- */
+}
 body {
     background-color: #101050;
     color: #f0f0f0
