@@ -19,7 +19,7 @@ char webpage[] PROGMEM = R"=====(
             <div class='summary_bar' style='display: table-row; width:100%'>
             </div>
         </div>
-        <div class="chart-container" style="position: relative; height:50vh; width:95vw">
+        <div class="chart-container" style="position: relative; height:49vh; width:89vw; padding: 5%;">
             <canvas id='pack_level' style='height: 602px; display: block'></canvas>
         </div>
     </div>
@@ -315,6 +315,9 @@ function setup_pack_info(size=0){
             },
             options: {
                 responsive: true,
+                legend: {
+                    display: false,
+                },
                 scales: {
                     yAxes: [{
                         ticks: {
