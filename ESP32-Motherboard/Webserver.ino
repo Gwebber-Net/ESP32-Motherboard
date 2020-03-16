@@ -422,7 +422,7 @@ char www_css[] PROGMEM = R"=====(
 }
 body {
     background-color: #101050;
-    color: #f0f0f0
+    color: #f0f0f0;
     margin: 0px;
 }
 #menu {
