@@ -19,7 +19,7 @@ char webpage[] PROGMEM = R"=====(
             <div class='summary_bar' style='display: table-row; width:100%'>
             </div>
         </div>
-        <div class="chart-container" style="position: relative; height:49vh; width:89vw; padding: 5%;">
+        <div class="chart-container" style="position: relative; width:79vw; padding-left: 10%; padding-right: 10%;">
             <canvas id='pack_level' style='height: 602px; display: block'></canvas>
         </div>
     </div>
@@ -423,6 +423,7 @@ char www_css[] PROGMEM = R"=====(
 body {
     background-color: #101050;
     color: #f0f0f0
+    margin: 0px;
 }
 #menu {
     margin: 5px;
