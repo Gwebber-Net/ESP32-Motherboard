@@ -90,6 +90,19 @@ void setup()
   Put_Data(0);
   Put_Teal();
   Senddata();
+
+  // Set your Static IP address
+    IPAddress local_IP(192, 168, 2, 7);
+  // Set your Gateway IP address
+    IPAddress gateway(192, 168, 2, 254);
+
+    IPAddress subnet(255, 255, 255, 0);
+
+  // Configures static IP address
+  if (!WiFi.config(local_IP, gateway, subnet)) {
+    Serial.println("Failed to configure static ip");
+  }
+  
   Serial.begin(115200);
   Serial.println("Connecting");
   WiFi.begin(ssid, password);
