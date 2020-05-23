@@ -1,2 +1,5 @@
 
 ESP32-Motherboard/credentials.ino
+PlatformIO/ESP32 Motherboard/.vscode/launch.json
+PlatformIO/ESP32 Motherboard/.vscode/c_cpp_properties.json
+PlatformIO/ESP32 Motherboard/.pio/build/project.checksum
